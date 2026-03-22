@@ -1,0 +1,1901 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rastreio de Ingredientes por Massa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --background: hsl(0 0% 97%);
+      --foreground: hsl(220 15% 15%);
+      --card: hsl(0 0% 100%);
+      --muted: hsl(220 14% 96%);
+      --muted-foreground: hsl(220 9% 46%);
+      --border: hsl(220 13% 91%);
+      --input: hsl(220 13% 91%);
+      --ring: hsl(0 72% 51%);
+      --primary: hsl(0 72% 51%);
+      --radius: 0.75rem;
+      --shadow-sm: 0 1px 2px rgba(16,24,40,.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.10), 0 4px 6px -2px rgba(0,0,0,.05);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--background);
+      color: var(--foreground);
+      min-height: 100vh;
+    }
+
+    .app-shell { min-height: 100vh; display: flex; flex-direction: column; }
+    .header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: var(--shadow-sm);
+    }
+    .container-7xl, .container-5xl, .container-4xl, .header-inner {
+      width: 100%;
+      margin: 0 auto;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    .container-7xl, .header-inner { max-width: 80rem; }
+    .container-5xl { max-width: 64rem; }
+    .container-4xl { max-width: 56rem; }
+
+    .header-inner {
+      padding-top: .75rem;
+      padding-bottom: .75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .brand { display: flex; align-items: center; gap: .75rem; min-width: 0; }
+    .brand-icon {
+      width: 2.25rem; height: 2.25rem; border-radius: .6rem;
+      background: #ef4444; color: white; display: flex;
+      align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .brand-title { font-size: 1rem; font-weight: 700; line-height: 1.15; }
+    .brand-sub { margin-top: .1rem; font-size: .75rem; color: var(--muted-foreground); text-transform: capitalize; }
+
+    .desktop-nav { display: none; align-items: center; gap: .25rem; }
+    .nav-link {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .5rem 1rem; border-radius: .75rem; font-size: .875rem;
+      font-weight: 500; color: var(--muted-foreground); background: transparent;
+      border: 0; cursor: pointer; text-decoration: none;
+    }
+    .nav-link:hover { background: var(--muted); color: var(--foreground); }
+    .nav-link.active { background: #fef2f2; color: #dc2626; }
+    .nav-user {
+      margin-left: .75rem; padding-left: .75rem; border-left: 1px solid var(--border);
+      font-size: .75rem; color: var(--muted-foreground);
+    }
+
+    .menu-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 2.5rem; height: 2.5rem; border-radius: .75rem;
+      border: 0; background: transparent; cursor: pointer; font-size: 1.2rem;
+    }
+    .menu-btn:hover { background: var(--muted); }
+    .mobile-nav { display: none; border-top: 1px solid var(--border); background: var(--card); padding: .5rem 1rem; }
+    .mobile-nav.open { display: block; }
+    .mobile-link {
+      display: flex; width: 100%; align-items: center; gap: .75rem;
+      padding: .875rem .75rem; border-radius: .75rem; font-size: .875rem;
+      font-weight: 500; color: var(--muted-foreground); border: 0;
+      background: transparent; text-align: left; cursor: pointer;
+    }
+    .mobile-link.active { background: #fef2f2; color: #dc2626; }
+    .mobile-link:hover { background: var(--muted); }
+    .mobile-user {
+      padding: .5rem .75rem 0; margin-top: .25rem; border-top: 1px solid var(--border);
+      font-size: .75rem; color: var(--muted-foreground);
+    }
+
+    main { flex: 1; }
+    .page { padding: 1rem 0; }
+    .space-y-4 > * + * { margin-top: 1rem; }
+    .space-y-1 > * + * { margin-top: .25rem; }
+
+    .panel-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: .75rem;
+      padding: 1rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: .75rem;
+    }
+    .summary-item {
+      display: flex; align-items: center; gap: .75rem; padding: .5rem;
+    }
+    .summary-num {
+      font-size: 1.25rem; font-weight: 700; line-height: 1;
+    }
+    .summary-label {
+      font-size: .75rem; color: var(--muted-foreground); margin-top: .125rem;
+    }
+    .text-foreground { color: var(--foreground); }
+    .text-green-600 { color: #16a34a; }
+    .text-amber-600 { color: #d97706; }
+    .text-red-500 { color: #ef4444; }
+    .text-purple-600 { color: #9333ea; }
+    .text-blue-600 { color: #2563eb; }
+    .text-orange-600 { color: #ea580c; }
+
+    .filters {
+      display: flex; flex-direction: column; gap: .5rem;
+    }
+    .field-wrap { position: relative; flex: 1; }
+    .field-icon {
+      position: absolute; left: .75rem; top: 50%; transform: translateY(-50%);
+      color: var(--muted-foreground); font-size: .95rem; pointer-events: none;
+    }
+    .input, .select, .date-input {
+      display: flex; width: 100%; border-radius: .375rem; border: 1px solid var(--input);
+      background: transparent; padding: .25rem .75rem; font-size: 1rem; color: var(--foreground);
+      box-shadow: var(--shadow-sm); transition: border-color .15s ease, box-shadow .15s ease;
+      height: 2.5rem; outline: none;
+    }
+    .input::placeholder { color: var(--muted-foreground); }
+    .icon-pad { padding-left: 2.25rem; }
+    .input:focus, .select:focus, .date-input:focus {
+      border-color: #f87171;
+      box-shadow: 0 0 0 1px #f87171;
+    }
+
+    .mass-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: .75rem;
+    }
+    .mass-card {
+      border-radius: .75rem;
+      border: 2px solid #e5e7eb;
+      padding: .75rem;
+      transition: all .15s ease;
+    }
+    .mass-card.completa { border-color: #4ade80; background: rgba(240,253,244,.9); }
+    .mass-card.parcial { border-color: #fbbf24; background: rgba(255,251,235,.85); }
+    .mass-card.pendente { border-color: #f87171; background: rgba(254,242,242,.85); }
+    .mass-card.turno { }
+    .mass-card.turno-a { border-color: #60a5fa; }
+    .mass-card.turno-b { border-color: #a78bfa; }
+    .mass-card.turno-c { border-color: #fb923c; }
+    .mass-card.locked { border-color: #e5e7eb; opacity: .6; }
+
+    .mass-top {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: .625rem;
+    }
+    .mass-title {
+      font-size: 1rem; font-weight: 700; color: var(--foreground);
+      cursor: pointer; user-select: none;
+    }
+    .badges {
+      display: flex; flex-direction: column; align-items: flex-end; gap: .125rem;
+    }
+    .badge {
+      font-size: 10px; font-weight: 600; padding: .125rem .5rem; border-radius: 999px;
+      line-height: 1.2;
+    }
+    .badge.completa { background: transparent; color: #16a34a; padding: 0; }
+    .badge.parcial { background: transparent; color: #ca8a04; padding: 0; }
+    .badge.pendente { background: transparent; color: #dc2626; padding: 0; }
+    .badge.turno {
+      background: transparent;
+      border-width: 1px;
+      border-style: solid;
+    }
+    .badge.turno.turno-a { background: #eff6ff; color: #1d4ed8; border-color: #60a5fa; }
+    .badge.turno.turno-b { background: #f5f3ff; color: #6d28d9; border-color: #a78bfa; }
+    .badge.turno.turno-c { background: #fff7ed; color: #c2410c; border-color: #fb923c; }
+
+    .button-stack {
+      display: flex; flex-direction: column; gap: .375rem;
+    }
+    .ingredient-btn {
+      width: 100%;
+      padding: .625rem .75rem;
+      border-radius: .5rem;
+      font-size: .75rem;
+      font-weight: 600;
+      transition: all .15s ease;
+      border: 0;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      text-align: center;
+    }
+    .ingredient-btn:active { transform: scale(.97); }
+    .ingredient-btn.pending { background: #ef4444; color: white; }
+    .ingredient-btn.pending:hover { background: #dc2626; }
+    .ingredient-btn.confirmed {
+      background: #e5e7eb;
+      color: #6b7280;
+      border: 2px solid #e5e7eb;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    }
+    .ingredient-btn:disabled { cursor: not-allowed; }
+    .ingredient-btn.blocked {
+      background: #fca5a5;
+      color: #ffffff;
+      opacity: .55;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .ingredient-btn.blocked:hover { background: #fca5a5; }
+
+    .page-title {
+      margin: 0; font-size: 1.25rem; font-weight: 700;
+    }
+    .toolbar {
+      display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: wrap;
+    }
+    .button-row { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+      white-space: nowrap; border-radius: .375rem; font-size: .875rem; font-weight: 500;
+      transition: all .15s ease; height: 2.25rem; padding: .5rem 1rem;
+      border: 1px solid var(--input); background: white; color: var(--foreground);
+      cursor: pointer; box-shadow: var(--shadow-sm);
+    }
+    .btn:hover { background: var(--muted); }
+    .btn-primary { background: var(--primary); color: white; border-color: transparent; }
+    .btn-primary:hover { background: #dc2626; }
+    .btn-destructive { background: #ef4444; color: white; border-color: transparent; }
+    .btn-destructive:hover { background: #dc2626; }
+    .btn-warning { background: #f59e0b; color: white; border-color: transparent; }
+    .btn-warning:hover { background: #d97706; }
+    .btn-secondary { background: #6b7280; color: white; border-color: transparent; }
+    .btn-secondary:hover { background: #4b5563; }
+
+    .btn-turno-a { background: #eff6ff; color: #1d4ed8; border-color: #60a5fa; }
+    .btn-turno-a:hover { background: #dbeafe; }
+    .btn-turno-b { background: #f5f3ff; color: #6d28d9; border-color: #a78bfa; }
+    .btn-turno-b:hover { background: #ede9fe; }
+    .btn-turno-c { background: #fff7ed; color: #c2410c; border-color: #fb923c; }
+    .btn-turno-c:hover { background: #ffedd5; }
+    .btn-neutral { background: #f9fafb; color: #374151; border-color: #d1d5db; }
+    .btn-neutral:hover { background: #f3f4f6; }
+
+
+    .admin-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: .75rem;
+    }
+    .admin-stat {
+      background: var(--card); border: 1px solid var(--border); border-radius: .75rem;
+      padding: 1rem;
+    }
+    .admin-value { font-size: 1.5rem; font-weight: 700; line-height: 1; }
+    .admin-label { font-size: .75rem; color: var(--muted-foreground); margin-top: .2rem; }
+
+    .history-group-title {
+      font-size: .875rem; font-weight: 700; margin: 0 0 .5rem;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .history-group-title span {
+      font-size: .75rem; font-weight: 400; color: var(--muted-foreground);
+    }
+    .history-row {
+      display: flex; align-items: center; gap: .75rem; padding: .5rem .75rem;
+      border-radius: .75rem; font-size: .875rem; transition: background .15s ease;
+    }
+    .history-row:hover { background: rgba(243,244,246,.75); }
+    .history-date { width: 5rem; flex-shrink: 0; color: var(--muted-foreground); font-size: .75rem; }
+    .history-mass { width: 2.5rem; flex-shrink: 0; font-weight: 700; }
+    .pill {
+      display: inline-flex; align-items: center; padding: .125rem .5rem;
+      border-radius: 999px; font-size: .75rem; font-weight: 500; flex-shrink: 0;
+    }
+    .pill-purple { background: #f3e8ff; color: #7e22ce; }
+    .pill-blue { background: #dbeafe; color: #1d4ed8; }
+    .pill-orange { background: #ffedd5; color: #c2410c; }
+    .history-time, .history-user { color: var(--muted-foreground); font-size: .75rem; }
+    .history-user {
+      margin-left: auto; max-width: 10rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    .meta-line { font-size: .875rem; color: var(--muted-foreground); }
+    .empty { text-align: center; color: var(--muted-foreground); padding: 3rem 1rem; }
+
+    .overlay {
+      position: fixed; inset: 0; background: rgba(15,23,42,.35);
+      display: none; align-items: center; justify-content: center; padding: 1rem; z-index: 100;
+    }
+    .overlay.open { display: flex; }
+    .dialog {
+      position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      z-index: 50; display: grid; width: 100%; max-width: 32rem; gap: 1rem;
+      border: 1px solid var(--border); background: var(--background); padding: 1.5rem;
+      box-shadow: var(--shadow-lg); border-radius: .5rem;
+    }
+    .dialog-title { font-size: 1.125rem; font-weight: 600; margin: 0; }
+    .dialog-desc { font-size: .875rem; color: var(--muted-foreground); line-height: 1.5; }
+    .dialog-actions { display: flex; flex-direction: column-reverse; gap: .5rem; }
+
+    .toast-wrap {
+      position: fixed; top: 0; z-index: 100; display: flex; width: 100%;
+      flex-direction: column-reverse; padding: 1rem; pointer-events: none;
+    }
+    .toast {
+      margin-left: auto; width: min(100%, 26rem); background: white; border: 1px solid var(--border);
+      border-radius: .75rem; box-shadow: var(--shadow-lg); padding: .9rem 1rem; margin-top: .5rem;
+      pointer-events: auto;
+    }
+    .toast-title { font-size: .875rem; font-weight: 700; }
+    .toast-desc { font-size: .8125rem; color: var(--muted-foreground); margin-top: .15rem; }
+
+    @media (min-width: 640px) {
+      .summary-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+      .filters { flex-direction: row; }
+      .mass-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+      .admin-stats { grid-template-columns: repeat(4, minmax(0,1fr)); }
+      .dialog-actions { flex-direction: row; justify-content: flex-end; }
+    }
+    @media (min-width: 768px) {
+      .desktop-nav { display: flex; }
+      .menu-btn { display: none; }
+      .mass-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+    }
+    @media (min-width: 1024px) {
+      .mass-grid { grid-template-columns: repeat(5, minmax(0,1fr)); }
+    }
+    @media (min-width: 1280px) {
+      .mass-grid { grid-template-columns: repeat(6, minmax(0,1fr)); }
+    }
+  
+    .top-actions { display:flex; align-items:center; gap:.5rem; position:relative; }
+    .small-ghost {
+      display:inline-flex; align-items:center; justify-content:center;
+      border:1px solid var(--border); border-radius:.5rem;
+      background:transparent; color:var(--foreground);
+    }
+    .menu-dropdown {
+      display:none; position:absolute; right:0; top:38px; background:var(--card);
+      border:1px solid rgba(0,0,0,0.08); border-radius:8px; min-width:180px; z-index:9999;
+      box-shadow: var(--shadow-lg); overflow:hidden;
+    }
+    .menu-dropdown.open { display:block; }
+    .menu-item {
+      padding:10px 14px; cursor:pointer; border-bottom:1px solid rgba(0,0,0,0.05);
+      font-size:.875rem;
+    }
+    .menu-item:last-child { border-bottom:0; }
+    .menu-item:hover { background: var(--muted); }
+
+    .login-overlay {
+      position: fixed; inset: 0; background: rgba(15,23,42,.35);
+      display: none; align-items: center; justify-content: center; padding: 1rem; z-index: 200;
+    }
+    .login-overlay.open { display:flex; }
+    .login-card {
+      width:100%; max-width:420px; background:var(--card); border:1px solid var(--border);
+      border-radius:12px; box-shadow: var(--shadow-lg); padding:20px;
+    }
+    .primary {
+      display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+      white-space:nowrap; border-radius:.5rem; font-size:.875rem; font-weight:600;
+      height:2.4rem; padding:.5rem 1rem; border:1px solid transparent;
+      background: var(--primary); color:white; cursor:pointer; box-shadow: var(--shadow-sm);
+    }
+    .primary:hover { background:#dc2626; }
+
+
+    .hidden { display: none !important; }
+
+  </style>
+
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#dc2626">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Rastreio Massa">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+
+</head>
+<body>
+  <div class="app-shell">
+    <header class="header">
+      <div class="header-inner">
+        <div class="brand">
+          <div class="brand-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect>
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+              <path d="M12 11h4"></path>
+              <path d="M12 16h4"></path>
+              <path d="M8 11h.01"></path>
+              <path d="M8 16h.01"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="brand-title">CONTROLE DE INGREDIENTES DA MASSA - LINHA 3</div>
+            <div id="headerDate" class="brand-sub"></div>
+          </div>
+        </div>
+        <nav class="desktop-nav" id="desktopNav"></nav>
+        <button class="menu-btn" id="menuBtn">☰</button>
+      </div>
+      <nav class="mobile-nav" id="mobileNav"></nav>
+    </header>
+
+    <main id="app"></main>
+
+    <div class="overlay" id="dialogOverlay">
+      <div class="dialog" role="alertdialog" aria-modal="true">
+        <div>
+          <h2 class="dialog-title" id="dialogTitle">Atenção</h2>
+          <p class="dialog-desc" id="dialogDesc"></p>
+        </div>
+        <div class="dialog-actions" id="dialogActions"></div>
+      </div>
+    </div>
+
+    <div class="toast-wrap" id="toastWrap"></div>
+  </div>
+
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:18px;color:var(--primary);font-weight:700">Login (Mock)</div>
+        <div id="login-close" style="cursor:pointer;color:var(--muted-foreground)">✕</div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <label>Usuário</label>
+        <input id="login-username" class="input" placeholder="nome">
+        <label>Senha</label>
+        <input id="login-password" class="input" type="password" placeholder="123">
+        <label>Perfil</label>
+        <select id="login-role" class="input">
+          <option value="operador">Operador</option>
+          <option value="supervisor">Supervisor</option>
+          <option value="admin">Admin</option>
+        </select>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+          <button id="login-btn" class="primary">Entrar</button>
+        </div>
+        <div style="margin-top:8px;color:var(--muted-foreground);font-size:13px">Operador = 123 • Supervisor = 999 • Admin = 111. Este login é mock; no ambiente real conectaremos a API.</div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script>
+    const STORAGE_KEY = 'controle_massa_records_v3';
+    const LOT_KEY = 'lote_resets_v3';
+    const USER = { full_name: 'Operador', email: '', role: 'operador' };
+    const AUTH_KEY = 'ingredientes_mock_auth';
+    const TURNO_KEY_PREFIX = 'turno_';
+    const DAY_CURSOR_KEY = 'controle_massa_operational_day_v1';
+    const EXPORTED_DAYS_KEY = 'controle_massa_exported_days_v1';
+    const LAST_SEEN_CLOCK_KEY = 'controle_massa_last_seen_clock_v1';
+    const CARRYOVER_KEY = 'controle_massa_carryover_v1';
+    const MOCK_CREDENTIALS = {
+      operador: '123',
+      admin: '111',
+      supervisor: '999'
+    };
+
+    function getAuth() {
+      try {
+        return JSON.parse(localStorage.getItem(AUTH_KEY) || 'null') || { username: '', role: 'operador', loggedIn: false };
+      } catch {
+        return { username: '', role: 'operador', loggedIn: false };
+      }
+    }
+
+    function saveAuth(auth) {
+      localStorage.setItem(AUTH_KEY, JSON.stringify(auth));
+    }
+
+    function getCurrentUser() {
+      const auth = getAuth();
+      return auth.loggedIn && auth.username ? auth.username : 'Operador';
+    }
+
+    function getCurrentRole() {
+      const auth = getAuth();
+      return auth.loggedIn && auth.role ? auth.role : 'operador';
+    }
+
+    function isAdmin() {
+      return getCurrentRole() === 'admin';
+    }
+
+    function isSupervisor() {
+      return getCurrentRole() === 'supervisor';
+    }
+
+    function canAccessAdmin() {
+      return isAdmin();
+    }
+
+    function canResetSystem() {
+      return isAdmin();
+    }
+
+    function canEditTurno() {
+      return isAdmin() || isSupervisor();
+    }
+
+    function canEndBatch() {
+      return isAdmin() || isSupervisor();
+    }
+
+    function openLoginModal() {
+      document.getElementById('loginOverlay').classList.add('open');
+      const auth = getAuth();
+      document.getElementById('login-username').value = auth.username || '';
+      document.getElementById('login-password').value = '';
+      document.getElementById('login-role').value = auth.role || 'operador';
+    }
+
+    function closeLoginModal() {
+      document.getElementById('loginOverlay').classList.remove('open');
+    }
+
+    function doMockLogin() {
+      const username = document.getElementById('login-username').value.trim();
+      const password = document.getElementById('login-password').value.trim();
+      const role = document.getElementById('login-role').value;
+
+      if (!username || !password) {
+        showToast('Login inválido', 'Preencha usuário e senha');
+        return;
+      }
+
+      if (MOCK_CREDENTIALS[role] !== password) {
+        showToast('Senha incorreta', `A senha do perfil ${role} não confere`);
+        return;
+      }
+
+      saveAuth({ username, role, loggedIn: true });
+      closeLoginModal();
+      showToast('Login realizado', `${username} • ${role}`);
+      render();
+    }
+
+    function doLogout() {
+      saveAuth({ username: '', role: 'operador', loggedIn: false });
+      showToast('Sessão encerrada', 'Faça login para identificar o operador');
+      render();
+    }
+    const ingredientes = ['Melhorador', 'Sal', 'Fermento'];
+
+    const state = {
+      route: location.hash.replace('#', '') || '/',
+      menuOpen: false,
+      search: '',
+      statusFilter: 'todas',
+      histSearch: '',
+      histIng: 'todos',
+      histDate: '',
+      adminSearch: '',
+      adminIng: 'todos',
+      adminDate: ''
+    };
+
+    function generateMassNumbers() {
+      const masses = [];
+      for (let i = 1; i <= 290; i++) masses.push(`M${String(i).padStart(2, '0')}`);
+      return masses;
+    }
+    const ALL_MASSES = generateMassNumbers();
+
+    function getVisibleMasses(byMass) {
+      let highestStartedIndex = -1;
+      ALL_MASSES.forEach((m, idx) => {
+        const recs = byMass[m] || [];
+        const started = ingredientes.some(ing => recs.some(r => r.ingrediente === ing));
+        if (started) highestStartedIndex = idx;
+      });
+
+      const count = Math.max(1, highestStartedIndex + 2);
+      return ALL_MASSES.slice(0, Math.min(count, ALL_MASSES.length));
+    }
+
+
+    function getTodayStr(date = new Date()) {
+      return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+    }
+    function getCurrentTime(date = new Date()) {
+      return `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+    }
+    function formatDateBr(v) { return v.split('-').reverse().join('/'); }
+    function formatHeaderLabelFromDay(day) {
+      const base = day ? new Date(`${day}T12:00:00`) : new Date();
+      return base.toLocaleDateString('pt-BR', {
+        weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric'
+      });
+    }
+
+    function getActiveDay() {
+      return getOperationalDay() || getTodayStr();
+    }
+
+    function todayHeaderLabel() {
+      return formatHeaderLabelFromDay(getActiveDay());
+    }
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+    }
+    function getMassStatus(registros) {
+      const confirmed = ingredientes.filter(ing => registros.some(r => r.ingrediente === ing)).length;
+      if (confirmed === 0) return 'pendente';
+      if (confirmed === 3) return 'completa';
+      return 'parcial';
+    }
+    function getData() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+      const seed = seedData();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
+      return seed;
+    }
+    function saveData(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+    function getLoteResets() { return JSON.parse(localStorage.getItem(LOT_KEY) || '[]'); }
+
+    function getExportedDays() {
+      try {
+        return JSON.parse(localStorage.getItem(EXPORTED_DAYS_KEY) || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    function saveExportedDays(days) {
+      localStorage.setItem(EXPORTED_DAYS_KEY, JSON.stringify(days));
+    }
+
+    function wasDayExported(day) {
+      return getExportedDays().includes(day);
+    }
+
+    function markDayAsExported(day) {
+      const days = getExportedDays();
+      if (!days.includes(day)) {
+        days.push(day);
+        saveExportedDays(days);
+      }
+    }
+
+    function getOperationalDay() {
+      return localStorage.getItem(DAY_CURSOR_KEY) || '';
+    }
+
+    function setOperationalDay(day) {
+      localStorage.setItem(DAY_CURSOR_KEY, day);
+    }
+
+
+
+    function getCarryoverItems() {
+      try {
+        return JSON.parse(localStorage.getItem(CARRYOVER_KEY) || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    function saveCarryoverItems(items) {
+      localStorage.setItem(CARRYOVER_KEY, JSON.stringify(items || []));
+    }
+
+    function clearCarryoverItems() {
+      localStorage.removeItem(CARRYOVER_KEY);
+    }
+
+    function getMassNumberValue(mass) {
+      return Number(String(mass || '').replace(/\D/g, '')) || 0;
+    }
+
+    function buildCarryoverItemsForDay(day) {
+      const byMass = groupByMass(getRecordsForDay(day));
+      const visibleMasses = getVisibleMasses(byMass);
+      return visibleMasses
+        .filter(m => getMassStatus(byMass[m] || []) === 'parcial')
+        .map(m => ({ sourceDay: day, sourceMass: m, displayMass: m }));
+    }
+
+    function getActiveCarryoverEntries() {
+      const records = getData();
+      const items = getCarryoverItems()
+        .map(item => {
+          const recs = records.filter(r => r.data === item.sourceDay && r.numero_massa === item.sourceMass);
+          const status = getMassStatus(recs);
+          return {
+            ...item,
+            recs,
+            status,
+            turno: getTurnoForMass(item.sourceMass, recs)
+          };
+        })
+        .filter(item => item.status === 'parcial')
+        .sort((a, b) => getMassNumberValue(a.displayMass) - getMassNumberValue(b.displayMass));
+
+      const raw = getCarryoverItems();
+      if (raw.length !== items.length) {
+        saveCarryoverItems(items.map(({ sourceDay, sourceMass, displayMass }) => ({ sourceDay, sourceMass, displayMass })));
+      }
+
+      return items;
+    }
+
+    function getLastSeenClock() {
+      try {
+        return JSON.parse(localStorage.getItem(LAST_SEEN_CLOCK_KEY) || 'null');
+      } catch {
+        return null;
+      }
+    }
+
+    function saveLastSeenClock(data) {
+      localStorage.setItem(LAST_SEEN_CLOCK_KEY, JSON.stringify(data));
+    }
+
+    function addDaysToStr(day, amount) {
+      const base = new Date(`${day}T12:00:00`);
+      base.setDate(base.getDate() + amount);
+      return getTodayStr(base);
+    }
+
+    function getNextEmptyOperationalDay(day) {
+      let candidate = addDaysToStr(day, 1);
+      let safety = 0;
+      while (getRecordsForDay(candidate).length > 0 && safety < 400) {
+        candidate = addDaysToStr(candidate, 1);
+        safety += 1;
+      }
+      return candidate;
+    }
+
+    function finalizeOperationalDay(lastDay, nextDay) {
+      const carryovers = buildCarryoverItemsForDay(lastDay);
+      saveCarryoverItems(carryovers);
+      clearTurnosStorage();
+
+      const hadRecords = getRecordsForDay(lastDay).length > 0;
+      if (hadRecords && !wasDayExported(lastDay)) {
+        exportDayPdf(lastDay, {
+          silent: true,
+          markExported: true,
+          autoMessage: 'PDF baixado automaticamente na virada do dia às 00:00.'
+        });
+      }
+
+      setOperationalDay(nextDay);
+      const carryMsg = carryovers.length
+        ? ` ${carryovers.length} massa(s) parcial(is) do dia anterior ficaram visíveis para finalização.`
+        : '';
+      showToast('Novo dia iniciado', `A próxima massa não iniciada virou Massa 01.${carryMsg}`);
+      render();
+      return true;
+    }
+
+    function getRecordsForDay(day) {
+      return getData()
+        .filter(r => r.data === day && r.ingrediente !== '_turno')
+        .sort((a, b) => {
+          if (a.data !== b.data) return a.data.localeCompare(b.data);
+          if (a.hora !== b.hora) return a.hora.localeCompare(b.hora);
+          return String(a.numero_massa).localeCompare(String(b.numero_massa));
+        });
+    }
+
+    function getAdminFilteredRecords() {
+      return getData()
+        .filter(r => r.ingrediente !== '_turno')
+        .filter(r => {
+          if (state.adminSearch) {
+            const q = state.adminSearch.toUpperCase().replace(/\s/g,'');
+            if (!r.numero_massa.includes(q)) return false;
+          }
+          if (state.adminIng !== 'todos' && r.ingrediente !== state.adminIng) return false;
+          if (state.adminDate && r.data !== state.adminDate) return false;
+          return true;
+        });
+    }
+
+    function triggerPdfDownload(doc, fileName) {
+      try {
+        const blob = doc.output('blob');
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          try { document.body.removeChild(a); } catch {}
+          URL.revokeObjectURL(url);
+        }, 500);
+        return true;
+      } catch (error) {
+        console.error('Falha ao iniciar download automático do PDF:', error);
+        try {
+          doc.save(fileName);
+          return true;
+        } catch (fallbackError) {
+          console.error('Falha no fallback de download do PDF:', fallbackError);
+          return false;
+        }
+      }
+    }
+
+    function exportRecordsPdf(registros, options = {}) {
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        showToast('Falha no PDF', 'Biblioteca de PDF não carregou.');
+        return false;
+      }
+
+      if (!registros.length) {
+        showToast('Nada para exportar', 'Nenhum registro encontrado para gerar o PDF.');
+        return false;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 12;
+      const usableWidth = pageWidth - margin * 2;
+      let y = 14;
+
+      const fileName = options.fileName || `rastreio_ingredientes_${getTodayStr()}.pdf`;
+      const title = options.title || 'Rastreabilidade de Ingredientes';
+      const subtitle = options.subtitle || 'Exportação do histórico';
+      const autoMessage = options.autoMessage || '';
+
+      function writeHeader(firstPage = false) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(15);
+        doc.text(title, margin, y);
+        y += 7;
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9.5);
+        const subLines = doc.splitTextToSize(subtitle, usableWidth);
+        doc.text(subLines, margin, y);
+        y += subLines.length * 4.5;
+
+        if (autoMessage) {
+          const autoLines = doc.splitTextToSize(autoMessage, usableWidth);
+          doc.text(autoLines, margin, y);
+          y += autoLines.length * 4.2;
+        }
+
+        if (firstPage) {
+          const dias = [...new Set(registros.map(r => r.data))];
+          const massas = [...new Set(registros.map(r => r.numero_massa))];
+          y += 1;
+          doc.setFont('helvetica', 'bold');
+          doc.text(`Registros: ${registros.length}`, margin, y);
+          doc.text(`Massas: ${massas.length}`, margin + 55, y);
+          doc.text(`Dias: ${dias.length}`, margin + 100, y);
+          y += 6;
+        } else {
+          y += 3;
+        }
+
+        doc.setDrawColor(220, 38, 38);
+        doc.line(margin, y, pageWidth - margin, y);
+        y += 6;
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.text('Data  Hora  Massa  Ingrediente  Usuário  Turno', margin, y);
+        y += 5;
+        doc.setDrawColor(220, 220, 220);
+        doc.line(margin, y, pageWidth - margin, y);
+        y += 4;
+      }
+
+      writeHeader(true);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+
+      registros.forEach((r, idx) => {
+        const line = `${formatDateBr(r.data)}   ${r.hora}   ${r.numero_massa}   ${r.ingrediente}   ${r.usuario || '-'}   ${r.turno || '-'}`;
+        const lines = doc.splitTextToSize(line, usableWidth);
+
+        if (y + (lines.length * 4.5) + 8 > pageHeight - margin) {
+          doc.addPage();
+          y = 14;
+          writeHeader(false);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(9);
+        }
+
+        doc.text(lines, margin, y);
+        y += lines.length * 4.5 + 1.5;
+
+        if (idx < registros.length - 1) {
+          doc.setDrawColor(242, 242, 242);
+          doc.line(margin, y, pageWidth - margin, y);
+          y += 3;
+        }
+      });
+
+      const totalPages = doc.getNumberOfPages();
+      for (let page = 1; page <= totalPages; page++) {
+        doc.setPage(page);
+        doc.setFontSize(8);
+        doc.setTextColor(120, 120, 120);
+        doc.text(`Página ${page} de ${totalPages}`, pageWidth - margin - 20, pageHeight - 6);
+      }
+
+      return triggerPdfDownload(doc, fileName);
+    }
+
+    function exportDayPdf(day, options = {}) {
+      const registros = getRecordsForDay(day);
+      const ok = exportRecordsPdf(registros, {
+        fileName: options.fileName || `rastreio_ingredientes_${day}.pdf`,
+        title: options.title || 'Rastreabilidade de Ingredientes',
+        subtitle: options.subtitle || `Fechamento diário de ${formatDateBr(day)}`,
+        autoMessage: options.autoMessage || ''
+      });
+
+      if (ok && options.markExported !== false) {
+        markDayAsExported(day);
+      }
+
+      if (ok && !options.silent) {
+        showToast('PDF gerado', `Histórico de ${formatDateBr(day)} exportado em PDF.`);
+      }
+
+      return ok;
+    }
+
+    function ensureOperationalDay() {
+      const now = new Date();
+      const today = getTodayStr(now);
+      const hour = now.getHours();
+      const minute = now.getMinutes();
+      const clockMinutes = hour * 60 + minute;
+      const lastDay = getOperationalDay();
+      const lastClock = getLastSeenClock();
+
+      if (!lastDay) {
+        setOperationalDay(today);
+        saveLastSeenClock({ day: today, minutes: clockMinutes });
+        return false;
+      }
+
+      if (lastDay > today) {
+        saveLastSeenClock({ day: lastDay, minutes: clockMinutes });
+        return false;
+      }
+
+      if (lastDay !== today) {
+        saveLastSeenClock({ day: today, minutes: clockMinutes });
+        return finalizeOperationalDay(lastDay, today);
+      }
+
+      const crossedMidnightByClock = !!(
+        lastClock &&
+        lastClock.day === lastDay &&
+        lastClock.minutes > clockMinutes &&
+        lastClock.minutes >= 23 * 60 &&
+        clockMinutes <= 60
+      );
+
+      if (crossedMidnightByClock) {
+        const nextDay = addDaysToStr(lastDay, 1);
+        saveLastSeenClock({ day: nextDay, minutes: clockMinutes });
+        return finalizeOperationalDay(lastDay, nextDay);
+      }
+
+      saveLastSeenClock({ day: lastDay, minutes: clockMinutes });
+      return false;
+    }
+
+
+    function getTurnoKeys() {
+      const keys = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(TURNO_KEY_PREFIX)) keys.push(key);
+      }
+      return keys;
+    }
+
+    function clearTurnosStorage() {
+      getTurnoKeys().forEach(key => localStorage.removeItem(key));
+    }
+
+    function clearTodayTurnosFromRecords(records, today) {
+      return records
+        .map(r => r.data === today ? { ...r, turno: '' } : r)
+        .filter(r => !(r.data === today && r.ingrediente === '_turno'));
+    }
+
+    function seedData() {
+      const now = new Date();
+      const today = getTodayStr(now);
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const y = getTodayStr(yesterday);
+      let id = 1;
+      const rows = [];
+      const todayItems = [
+      ];
+      const yItems = [
+        ['M01','Melhorador','17:14','Bem'],
+        ['M01','Sal','17:14','Bem'],
+        ['M01','Fermento','17:18','Bem'],
+        ['M02','Melhorador','17:19','Bem'],
+        ['M02','Sal','17:19','Bem'],
+        ['M02','Fermento','17:21','Bem'],
+        ['M03','Melhorador','18:35','Bem'],
+        ['M03','Sal','18:38','Bem'],
+        ['M03','Fermento','18:41','Bem'],
+      ];
+      for (const [massa, ing, hora, usuario] of todayItems) rows.push({ id: id++, data: today, hora, numero_massa: massa, ingrediente: ing, usuario, timestamp: `${today}T${hora}:00`, turno: massa === 'M05' ? 'Turno A' : '' });
+      for (const [massa, ing, hora, usuario] of yItems) rows.push({ id: id++, data: y, hora, numero_massa: massa, ingrediente: ing, usuario, timestamp: `${y}T${hora}:00` });
+      return rows;
+    }
+
+    function groupByMass(records) {
+      const map = {};
+      records.forEach(r => {
+        if (!map[r.numero_massa]) map[r.numero_massa] = [];
+        map[r.numero_massa].push(r);
+      });
+      return map;
+    }
+
+    function getTurnoForMass(mass, recs) {
+      const explicit = recs.find(r => r.turno)?.turno;
+      if (explicit) return explicit;
+      try {
+        return localStorage.getItem(`${TURNO_KEY_PREFIX}${mass}`) || '';
+      } catch {
+        return '';
+      }
+    }
+
+    function getTurnoCardClass(turno) {
+      if (turno === 'Turno A') return 'turno-a';
+      if (turno === 'Turno B') return 'turno-b';
+      if (turno === 'Turno C') return 'turno-c';
+      return '';
+    }
+
+    function getTurnoBadgeClass(turno) {
+      return getTurnoCardClass(turno);
+    }
+
+    function showToast(title, desc='') {
+      const wrap = document.getElementById('toastWrap');
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.innerHTML = `<div class="toast-title">${escapeHtml(title)}</div>${desc ? `<div class="toast-desc">${escapeHtml(desc)}</div>` : ''}`;
+      wrap.prepend(el);
+      setTimeout(() => el.remove(), 2600);
+    }
+
+    function openDialog({ title, description, actions }) {
+      document.getElementById('dialogTitle').textContent = title;
+      document.getElementById('dialogDesc').innerHTML = description;
+      const actionsEl = document.getElementById('dialogActions');
+      actionsEl.innerHTML = '';
+      actions.forEach(a => {
+        const btn = document.createElement('button');
+        btn.className = `btn ${a.variant || ''}`.trim();
+        btn.textContent = a.label;
+        btn.onclick = () => { if (a.onClick) a.onClick(); closeDialog(); };
+        actionsEl.appendChild(btn);
+      });
+      document.getElementById('dialogOverlay').classList.add('open');
+    }
+
+    function closeDialog() {
+      document.getElementById('dialogOverlay').classList.remove('open');
+    }
+
+    function setRoute(route) {
+      if (route === '/admin' && !canAccessAdmin()) {
+        showToast('Acesso negado', 'Somente admin pode acessar o painel admin');
+        return;
+      }
+      state.route = route;
+      location.hash = route;
+      state.menuOpen = false;
+      render();
+    }
+
+    function renderNav() {
+      const items = [
+        { path: '/', label: 'Produção' },
+      ];
+      if (canAccessAdmin()) items.push({ path: '/admin', label: 'Admin' });
+
+      const desktop = document.getElementById('desktopNav');
+      desktop.innerHTML = items.map(item => `
+        <button class="nav-link ${state.route === item.path ? 'active' : ''}" data-route="${item.path}">
+          ${item.path === '/' ? '📋' : '🛡️'} ${item.label}
+        </button>
+      `).join('') + `
+        <div class="top-actions">
+          <div id="menu-dots" class="small-ghost" style="padding:8px 12px;cursor:pointer;user-select:none;">⋮</div>
+          <div id="menu-dropdown" class="menu-dropdown" style="display:none;">
+            <div class="menu-item" id="menu-historico">Histórico</div>
+            ${canEndBatch() ? '<div class="menu-item" id="menu-fim-lote">Fim de Lote</div>' : ''}
+            <div class="menu-item" id="menu-login">Login</div>
+            <div class="menu-item" id="menu-logout">Sair / Trocar usuário</div>
+          </div>
+        </div>`;
+      desktop.querySelectorAll('[data-route]').forEach(el => el.onclick = () => setRoute(el.dataset.route));
+
+      const mobile = document.getElementById('mobileNav');
+      mobile.className = `mobile-nav ${state.menuOpen ? 'open' : ''}`;
+      mobile.innerHTML = items.map(item => `
+        <button class="mobile-link ${state.route === item.path ? 'active' : ''}" data-route="${item.path}">
+          ${item.path === '/' ? '📋' : '🛡️'} ${item.label}
+        </button>
+      `).join('') + `
+        <button class="mobile-link" id="menuHistoricoMobile">🕘 Histórico</button>
+        ${canEndBatch() ? '<button class="mobile-link" id="fimLoteMobile">⛔ Fim de Lote</button>' : ''}
+        <button class="mobile-link" id="loginMobile">🔐 Login</button>
+        <button class="mobile-link" id="logoutMobile">🚪 Sair / Trocar usuário</button>
+      `;
+      mobile.querySelectorAll('[data-route]').forEach(el => el.onclick = () => setRoute(el.dataset.route));
+      const fimMobile = document.getElementById('fimLoteMobile');
+      if (fimMobile) fimMobile.onclick = confirmFimLote;
+      const histMobile = document.getElementById('menuHistoricoMobile');
+      if (histMobile) histMobile.onclick = () => setRoute('/historico');
+      const loginMobile = document.getElementById('loginMobile');
+      if (loginMobile) loginMobile.onclick = openLoginModal;
+      const logoutMobile = document.getElementById('logoutMobile');
+      if (logoutMobile) logoutMobile.onclick = doLogout;
+    }
+
+    function renderSummary(registros, extraEntries = []) {
+      const byMass = groupByMass(registros);
+      const visibleMasses = getVisibleMasses(byMass).map(m => ({ status: getMassStatus(byMass[m] || []) }));
+      const allEntries = [...extraEntries, ...visibleMasses];
+      let completas = 0, parciais = 0, pendentes = 0;
+
+      allEntries.forEach(entry => {
+        const s = entry.status;
+        if (s === 'completa') completas++;
+        else if (s === 'parcial') parciais++;
+        else pendentes++;
+      });
+
+      return `
+        <div class="panel-card">
+          <div class="summary-grid">
+            <div class="summary-item"><div>📊</div><div><div class="summary-num">${allEntries.length}</div><div class="summary-label">Massas exibidas</div></div></div>
+            <div class="summary-item"><div class="text-green-600">✅</div><div><div class="summary-num">${completas}</div><div class="summary-label">Completas</div></div></div>
+            <div class="summary-item"><div class="text-amber-600">🕒</div><div><div class="summary-num">${parciais}</div><div class="summary-label">Parciais</div></div></div>
+            <div class="summary-item"><div class="text-red-500">⚠️</div><div><div class="summary-num">${pendentes}</div><div class="summary-label">Pendentes</div></div></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderProductionPage() {
+      const activeDay = getActiveDay();
+      const registros = getData().filter(r => r.data === activeDay);
+      const byMass = groupByMass(registros);
+      const carryovers = getActiveCarryoverEntries();
+      let masses = getVisibleMasses(byMass);
+      const searchQuery = state.search.toUpperCase().replace(/\s/g,'');
+      masses = masses.filter(m => m.includes(searchQuery));
+      if (state.statusFilter !== 'todas') masses = masses.filter(m => getMassStatus(byMass[m] || []) === state.statusFilter);
+
+      const filteredCarryovers = carryovers.filter(item => {
+        if (searchQuery && !item.displayMass.includes(searchQuery)) return false;
+        if (state.statusFilter !== 'todas' && item.status !== state.statusFilter) return false;
+        return true;
+      });
+
+      function renderMassCard({ displayMass, recs, status, turno, dataDay, massKey, isCarryover = false, label = '' }) {
+        const title = displayMass.replace('M', 'Massa ');
+        const badging = `
+          <div class="badges">
+            <span class="badge ${status}">${status === 'completa' ? 'Completa' : status === 'parcial' ? 'Parcial' : 'Pendente'}</span>
+            ${turno ? `<span class="badge turno ${getTurnoBadgeClass(turno)}">${turno}</span>` : ''}
+          </div>
+        `;
+        const cardClass = `mass-card ${status} ${turno ? `turno ${getTurnoCardClass(turno)}` : ''}`;
+        return `
+          <div class="${cardClass}">
+            <div class="mass-top">
+              <span class="mass-title" data-turno="${massKey}" data-day="${dataDay}" title="Duplo clique para definir turno">${title}</span>
+              ${badging}
+            </div>
+            ${label ? `<div class="meta-line" style="margin:0 0 8px 0;font-size:12px">${label}</div>` : ''}
+            <div class="button-stack">
+              ${ingredientes.map(ing => {
+                const found = recs.find(r => r.ingrediente === ing);
+                const temMelhorador = recs.some(r => r.ingrediente === 'Melhorador');
+                const temSal = recs.some(r => r.ingrediente === 'Sal');
+                const fermentoBloqueado = ing === 'Fermento' && (!temMelhorador || !temSal);
+                const disabled = fermentoBloqueado;
+                const btnClass = fermentoBloqueado ? 'blocked' : 'pending';
+                const hint = isCarryover ? 'Massa parcial trazida do dia anterior' : (fermentoBloqueado ? 'Adicione Melhorador e Sal primeiro' : '');
+                return found
+                  ? `<button class="ingredient-btn confirmed">✓ ${ing} · ${found.hora}</button>`
+                  : `<button class="ingredient-btn ${btnClass}" ${disabled ? 'disabled' : ''} data-massa="${massKey}" data-day="${dataDay}" data-ing="${ing}" title="${hint}">${ing}</button>`;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="page">
+          <div class="container-7xl space-y-4">
+            ${renderSummary(registros, filteredCarryovers.map(item => ({ status: item.status })))}
+
+            <div class="filters">
+              <div class="field-wrap">
+                <span class="field-icon">🔎</span>
+                <input id="prodSearch" class="input icon-pad" placeholder="Buscar massa (ex: M01)" value="${escapeHtml(state.search)}">
+              </div>
+              <select id="prodStatus" class="select" style="max-width:160px">
+                <option value="todas" ${state.statusFilter === 'todas' ? 'selected' : ''}>Todas</option>
+                <option value="pendente" ${state.statusFilter === 'pendente' ? 'selected' : ''}>Pendentes</option>
+                <option value="parcial" ${state.statusFilter === 'parcial' ? 'selected' : ''}>Parciais</option>
+                <option value="completa" ${state.statusFilter === 'completa' ? 'selected' : ''}>Completas</option>
+              </select>
+            </div>
+
+            ${filteredCarryovers.length ? `
+              <div class="panel-card">
+                <div class="meta-line" style="margin-bottom:10px"><strong>Pendentes do dia anterior</strong> • essas massas parciais continuam disponíveis para finalizar sem apagar o histórico.</div>
+                <div class="mass-grid">
+                  ${filteredCarryovers.map(item => renderMassCard({
+                    displayMass: item.displayMass,
+                    recs: item.recs,
+                    status: item.status,
+                    turno: item.turno,
+                    dataDay: item.sourceDay,
+                    massKey: item.sourceMass,
+                    isCarryover: true,
+                    label: `Origem: ${formatDateBr(item.sourceDay)}`
+                  })).join('')}
+                </div>
+              </div>
+            ` : ''}
+
+            <div class="panel-card">
+              <div class="meta-line" style="margin-bottom:10px"><strong>Novo dia</strong> • a próxima massa ainda não iniciada recomeça em <strong>Massa 01</strong>.</div>
+              <div class="mass-grid">
+                ${masses.map(m => renderMassCard({
+                  displayMass: m,
+                  recs: byMass[m] || [],
+                  status: getMassStatus(byMass[m] || []),
+                  turno: getTurnoForMass(m, byMass[m] || []),
+                  dataDay: activeDay,
+                  massKey: m
+                })).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderHistoryRows(registros) {
+      if (!registros.length) return `<div class="empty">Nenhum registro encontrado.</div>`;
+      const sorted = [...registros].sort((a,b) => b.data !== a.data ? b.data.localeCompare(a.data) : b.hora.localeCompare(a.hora));
+      return `
+        <div class="space-y-1">
+          ${sorted.map(r => `
+            <div class="history-row">
+              <span class="history-date">${formatDateBr(r.data)}</span>
+              <span class="history-mass">${r.numero_massa}</span>
+              <span class="pill ${r.ingrediente === 'Melhorador' ? 'pill-purple' : r.ingrediente === 'Sal' ? 'pill-blue' : 'pill-orange'}">${r.ingrediente}</span>
+              <span class="history-time">${r.hora}</span>
+              <span class="history-user">${escapeHtml(r.usuario)}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderHistoryPage() {
+      const registros = getData();
+      let filtered = registros;
+      if (state.histSearch) {
+        const q = state.histSearch.toUpperCase().replace(/\s/g,'');
+        filtered = filtered.filter(r => r.numero_massa.includes(q));
+      }
+      if (state.histIng !== 'todos') filtered = filtered.filter(r => r.ingrediente === state.histIng);
+      if (state.histDate) filtered = filtered.filter(r => r.data === state.histDate);
+
+      const groups = {};
+      filtered.forEach(r => {
+        if (!groups[r.data]) groups[r.data] = [];
+        groups[r.data].push(r);
+      });
+      const grouped = Object.entries(groups).sort((a,b) => b[0].localeCompare(a[0]));
+
+      return `
+        <div class="page">
+          <div class="container-4xl space-y-4">
+            <h1 class="page-title">Histórico Completo</h1>
+            <div class="filters">
+              <div class="field-wrap">
+                <span class="field-icon">🔎</span>
+                <input id="histSearch" class="input icon-pad" placeholder="Buscar massa (ex: M01)" value="${escapeHtml(state.histSearch)}">
+              </div>
+              <select id="histIng" class="select" style="max-width:150px">
+                <option value="todos" ${state.histIng==='todos'?'selected':''}>Todos</option>
+                <option value="Melhorador" ${state.histIng==='Melhorador'?'selected':''}>Melhorador</option>
+                <option value="Sal" ${state.histIng==='Sal'?'selected':''}>Sal</option>
+                <option value="Fermento" ${state.histIng==='Fermento'?'selected':''}>Fermento</option>
+              </select>
+              <div class="field-wrap" style="max-width:170px">
+                <span class="field-icon">📅</span>
+                <input id="histDate" type="date" class="date-input icon-pad" value="${state.histDate}">
+              </div>
+            </div>
+            <div class="meta-line">${filtered.length} registro(s) encontrado(s)</div>
+            ${grouped.length ? grouped.map(([data,recs]) => `
+              <div class="panel-card">
+                <h3 class="history-group-title">📅 ${formatDateBr(data)} <span>(${recs.length} registros)</span></h3>
+                ${renderHistoryRows(recs)}
+              </div>
+            `).join('') : `<div class="empty">Nenhum registro encontrado.</div>`}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAdminPage() {
+      const registros = getData();
+      const activeDay = getActiveDay();
+      let filtered = registros;
+      if (state.adminSearch) {
+        const q = state.adminSearch.toUpperCase().replace(/\s/g,'');
+        filtered = filtered.filter(r => r.numero_massa.includes(q));
+      }
+      if (state.adminIng !== 'todos') filtered = filtered.filter(r => r.ingrediente === state.adminIng);
+      if (state.adminDate) filtered = filtered.filter(r => r.data === state.adminDate);
+
+      const todayRecs = registros.filter(r => r.data === activeDay);
+      const stats = {
+        total: todayRecs.length,
+        melhorador: todayRecs.filter(r => r.ingrediente === 'Melhorador').length,
+        sal: todayRecs.filter(r => r.ingrediente === 'Sal').length,
+        fermento: todayRecs.filter(r => r.ingrediente === 'Fermento').length,
+      };
+
+      return `
+        <div class="page">
+          <div class="container-5xl space-y-4">
+            <div class="toolbar">
+              <h1 class="page-title">Painel Administrativo</h1>
+              <div class="button-row">
+                <button class="btn" id="exportBtn">⬇️ Exportar PDF</button>
+                <button class="btn btn-warning" id="resetDayBtn">🗑️ Resetar Dia</button>
+                <button class="btn btn-destructive" id="clearHistoryBtn">🔥 Limpar Histórico Completo</button>
+                <button class="btn btn-secondary" id="clearTurnosSessaoBtn">🧹 Limpar Turnos e Sessão</button>
+                <button class="btn" id="simulateMidnightBtn">🧪 Simular 00:00</button>
+              </div>
+            </div>
+
+            <div class="admin-stats">
+              <div class="admin-stat"><div class="admin-value">${stats.total}</div><div class="admin-label">Registros Hoje</div></div>
+              <div class="admin-stat"><div class="admin-value text-purple-600">${stats.melhorador}</div><div class="admin-label">Melhorador</div></div>
+              <div class="admin-stat"><div class="admin-value text-blue-600">${stats.sal}</div><div class="admin-label">Sal</div></div>
+              <div class="admin-stat"><div class="admin-value text-orange-600">${stats.fermento}</div><div class="admin-label">Fermento</div></div>
+            </div>
+
+            <div class="meta-line">Dia operacional ativo: <strong>${formatDateBr(activeDay)}</strong> • Use <strong>Simular 00:00</strong> para testar a virada sem mudar o relógio do PC.</div>
+
+            <div class="filters">
+              <div class="field-wrap">
+                <span class="field-icon">🔎</span>
+                <input id="adminSearch" class="input icon-pad" placeholder="Buscar massa" value="${escapeHtml(state.adminSearch)}">
+              </div>
+              <select id="adminIng" class="select" style="max-width:150px">
+                <option value="todos" ${state.adminIng==='todos'?'selected':''}>Todos</option>
+                <option value="Melhorador" ${state.adminIng==='Melhorador'?'selected':''}>Melhorador</option>
+                <option value="Sal" ${state.adminIng==='Sal'?'selected':''}>Sal</option>
+                <option value="Fermento" ${state.adminIng==='Fermento'?'selected':''}>Fermento</option>
+              </select>
+              <div class="field-wrap" style="max-width:170px">
+                <span class="field-icon">📅</span>
+                <input id="adminDate" type="date" class="date-input icon-pad" value="${state.adminDate || activeDay}">
+              </div>
+            </div>
+
+            <div class="meta-line">${filtered.length} registro(s) encontrado(s) • Total geral: ${registros.length}</div>
+            <div class="panel-card">${renderHistoryRows(filtered)}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function render() {
+      ensureOperationalDay();
+      document.getElementById('headerDate').textContent = todayHeaderLabel();
+      renderNav();
+      document.getElementById('menuBtn').textContent = state.menuOpen ? '✕' : '☰';
+
+      const app = document.getElementById('app');
+      if (state.route === '/historico') app.innerHTML = renderHistoryPage();
+      else if (state.route === '/admin') app.innerHTML = renderAdminPage();
+      else app.innerHTML = renderProductionPage();
+
+      bindEvents();
+    }
+
+    function confirmIngredient(massa, ingrediente, targetDay = getActiveDay()) {
+      ensureOperationalDay();
+      const records = getData();
+      const activeDay = targetDay;
+      const recs = records.filter(r => r.data === activeDay && r.numero_massa === massa);
+      const temMelhorador = recs.some(r => r.ingrediente === 'Melhorador');
+      const temSal = recs.some(r => r.ingrediente === 'Sal');
+
+      if (ingrediente === 'Fermento' && (!temMelhorador || !temSal)) {
+        showToast('Ordem inválida', 'Adicione Melhorador e Sal antes do Fermento');
+        return;
+      }
+
+      const existing = records.find(r => r.data === activeDay && r.numero_massa === massa && r.ingrediente === ingrediente);
+      if (existing) {
+        openDialog({
+          title: 'Atenção',
+          description: `${ingrediente} da massa ${massa.replace('M','Massa ')} já registrado hoje às ${existing.hora}`,
+          actions: [{ label: 'OK', variant: 'btn-primary' }]
+        });
+        return;
+      }
+
+      openDialog({
+        title: 'Confirmar ingrediente',
+        description: `Deseja confirmar <strong>${ingrediente}</strong> para a <strong>${massa.replace('M','Massa ')}</strong>?`,
+        actions: [
+          { label: 'Cancelar' },
+          { label: 'Confirmar', variant: 'btn-primary', onClick: () => {
+            const now = new Date();
+            const current = records.filter(r => r.data === activeDay && r.numero_massa === massa);
+            const turno = current.find(r => r.turno)?.turno || '';
+            records.push({
+              id: Date.now(),
+              data: activeDay,
+              hora: getCurrentTime(now),
+              numero_massa: massa,
+              ingrediente,
+              usuario: getCurrentUser(),
+              timestamp: now.toISOString(),
+              turno
+            });
+            saveData(records);
+            showToast('Registrado com sucesso', `${massa} • ${ingrediente}`);
+            render();
+          }}
+        ]
+      });
+    }
+
+    function defineTurno(massa, targetDay = getActiveDay()) {
+      ensureOperationalDay();
+      const records = getData();
+      const activeDay = targetDay;
+      const recs = records.filter(r => r.data === activeDay && r.numero_massa === massa);
+      const turnoAtual = recs.find(r => r.turno)?.turno || (() => {
+        try { return localStorage.getItem(`${TURNO_KEY_PREFIX}${massa}`) || ''; } catch { return ''; }
+      })();
+
+      const actions = [
+        { label: 'Cancelar', variant: 'btn-neutral' },
+        { label: 'Turno A', variant: 'btn-turno-a', onClick: () => setMassTurno(massa, 'Turno A', activeDay) },
+        { label: 'Turno B', variant: 'btn-turno-b', onClick: () => setMassTurno(massa, 'Turno B', activeDay) },
+        { label: 'Turno C', variant: 'btn-turno-c', onClick: () => setMassTurno(massa, 'Turno C', activeDay) }
+      ];
+
+      if (turnoAtual) {
+        actions.push({ label: 'Desmarcar', variant: 'btn-neutral', onClick: () => clearMassTurno(massa, activeDay) });
+      }
+
+      openDialog({
+        title: 'Definir turno',
+        description: turnoAtual
+          ? `Escolha o turno para a <strong>${massa.replace('M','Massa ')}</strong> ou desmarque o turno atual <strong>${turnoAtual}</strong>.`
+          : `Escolha o turno para a <strong>${massa.replace('M','Massa ')}</strong>.`,
+        actions
+      });
+    }
+
+    function setMassTurno(massa, turno, targetDay = getActiveDay()) {
+      ensureOperationalDay();
+      const records = getData();
+      const activeDay = targetDay;
+      try {
+        localStorage.setItem(`${TURNO_KEY_PREFIX}${massa}`, turno);
+      } catch {}
+      let changed = false;
+      records.forEach(r => {
+        if (r.data === activeDay && r.numero_massa === massa) {
+          r.turno = turno;
+          changed = true;
+        }
+      });
+      if (!changed) {
+        records.push({
+          id: Date.now(),
+          data: activeDay,
+          hora: getCurrentTime(new Date()),
+          numero_massa: massa,
+          ingrediente: '_turno',
+          usuario: getCurrentUser(),
+          timestamp: new Date().toISOString(),
+          turno
+        });
+      }
+      saveData(records.filter(r => r.ingrediente !== '_turno' || r.turno));
+      showToast('Turno definido', `${massa} • ${turno}`);
+      render();
+    }
+
+    function clearMassTurno(massa, targetDay = getActiveDay()) {
+      ensureOperationalDay();
+      const records = getData();
+      const activeDay = targetDay;
+
+      try {
+        localStorage.removeItem(`${TURNO_KEY_PREFIX}${massa}`);
+      } catch {}
+
+      const updated = records
+        .map(r => {
+          if (r.data === activeDay && r.numero_massa === massa) {
+            return { ...r, turno: '' };
+          }
+          return r;
+        })
+        .filter(r => !(r.data === activeDay && r.numero_massa === massa && r.ingrediente === '_turno'));
+
+      saveData(updated);
+      showToast('Turno removido', `${massa.replace('M','Massa ')} sem turno definido`);
+      render();
+    }
+
+    function confirmFimLote() {
+      if (!canEndBatch()) {
+        showToast('Acesso negado', 'Somente supervisor ou admin podem encerrar lote');
+        return;
+      }
+      openDialog({
+        title: 'Encerrar Lote',
+        description: 'Deseja realmente encerrar o lote atual e reiniciar a produção a partir da <strong>Massa 01</strong>? Os registros existentes serão mantidos.',
+        actions: [
+          { label: 'Cancelar' },
+          { label: 'Encerrar Lote e Reiniciar', variant: 'btn-warning', onClick: () => {
+            const resets = getLoteResets();
+            resets.push(new Date().toISOString());
+            localStorage.setItem(LOT_KEY, JSON.stringify(resets));
+            showToast('Lote encerrado', 'A produção foi reiniciada a partir da Massa 01.');
+            render();
+          }}
+        ]
+      });
+    }
+
+    function exportPdf() {
+      const registros = getAdminFilteredRecords();
+      const subtitleParts = [];
+      if (state.adminDate) subtitleParts.push(`Data: ${formatDateBr(state.adminDate)}`);
+      if (state.adminIng !== 'todos') subtitleParts.push(`Ingrediente: ${state.adminIng}`);
+      if (state.adminSearch) subtitleParts.push(`Busca: ${state.adminSearch.toUpperCase().replace(/\s/g,'')}`);
+
+      const ok = exportRecordsPdf(registros, {
+        fileName: `rastreio_ingredientes_${state.adminDate || getActiveDay()}.pdf`,
+        title: 'Rastreabilidade de Ingredientes',
+        subtitle: subtitleParts.length ? subtitleParts.join(' • ') : 'Exportação manual pelo painel admin'
+      });
+
+      if (ok) {
+        showToast('Exportado', `${registros.length} registro(s) exportado(s) em PDF.`);
+      }
+    }
+
+    function simulateMidnight() {
+      ensureOperationalDay();
+      if (!canResetSystem()) {
+        showToast('Acesso negado', 'Somente admin pode simular a virada de dia');
+        return;
+      }
+
+      const activeDay = getActiveDay();
+      const nextDay = getNextEmptyOperationalDay(activeDay);
+      const registrosDia = getRecordsForDay(activeDay);
+      const massasDia = [...new Set(registrosDia.map(r => r.numero_massa))].sort();
+      const ultimaMassa = massasDia.length ? massasDia[massasDia.length - 1].replace('M', 'Massa ') : 'nenhuma massa registrada';
+
+      openDialog({
+        title: 'SIMULAR VIRADA DE 00:00?',
+        description: `Este teste vai fechar o dia operacional <strong>${formatDateBr(activeDay)}</strong>, tentar exportar o PDF do dia e abrir um <strong>novo dia vazio</strong> em <strong>${formatDateBr(nextDay)}</strong> a partir da <strong>Massa 01</strong>.<br><br>Última massa detectada no dia atual: <strong>${ultimaMassa}</strong>.<br><br>Se o dia seguinte já tiver registros de testes antigos, o sistema pula automaticamente para a próxima data livre para não ficar travado. O histórico será mantido.`,
+        actions: [
+          { label: 'Cancelar', variant: 'btn-neutral' },
+          { label: 'SIM, TESTAR AGORA', variant: 'btn-primary', onClick: () => {
+            saveLastSeenClock({ day: activeDay, minutes: 23 * 60 + 59 });
+            const ok = finalizeOperationalDay(activeDay, nextDay);
+            if (ok) {
+              showToast('Teste executado', `Virada simulada com sucesso. O novo dia ativo agora é ${formatDateBr(nextDay)} e deve iniciar em Massa 01.`);
+            }
+          }}
+        ]
+      });
+    }
+
+    function resetDay() {
+      ensureOperationalDay();
+      if (!canResetSystem()) {
+        showToast('Acesso negado', 'Somente admin pode resetar o sistema');
+        return;
+      }
+      const records = getData();
+      const activeDay = getActiveDay();
+      const count = records.filter(r => r.data === activeDay && r.ingrediente !== '_turno').length;
+      const turnoKeysCount = getTurnoKeys().length;
+      openDialog({
+        title: 'CONFIRMAR RESET DO DIA',
+        description: `Você está prestes a apagar a produção do dia <strong>${formatDateBr(activeDay)}</strong>.<br><br>Serão removidos <strong>${count}</strong> registros de ingredientes de hoje e limpos os turnos do dia atual.<br><br><strong>Essa ação não pode ser desfeita.</strong>`,
+        actions: [
+          { label: 'Cancelar', variant: 'btn-neutral' },
+          { label: 'SIM, RESETAR O DIA', variant: 'btn-warning', onClick: () => {
+            const filtered = records.filter(r => r.data !== activeDay);
+            saveData(filtered);
+            clearTurnosStorage();
+            showToast('Dia resetado', `${count} registro(s) de hoje removido(s). ${turnoKeysCount ? 'Turnos limpos.' : ''}`.trim());
+            render();
+          }}
+        ]
+      });
+    }
+
+    function clearHistoryComplete() {
+      ensureOperationalDay();
+      if (!canResetSystem()) {
+        showToast('Acesso negado', 'Somente admin pode limpar o histórico completo');
+        return;
+      }
+      const records = getData();
+      const prodCount = records.filter(r => r.ingrediente !== '_turno').length;
+      const turnoCount = getTurnoKeys().length;
+      const loteCount = getLoteResets().length;
+      openDialog({
+        title: 'APAGAR TODO O HISTÓRICO?',
+        description: `Esta ação irá limpar <strong>todo o histórico do app</strong>.<br><br>Serão apagados <strong>${prodCount}</strong> registros de produção, <strong>${turnoCount}</strong> turno(s) salvo(s) e <strong>${loteCount}</strong> encerramento(s) de lote.<br><br><strong>Não existe desfazer.</strong>`,
+        actions: [
+          { label: 'Cancelar', variant: 'btn-neutral' },
+          { label: 'SIM, LIMPAR TUDO', variant: 'btn-destructive', onClick: () => {
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(LOT_KEY);
+            localStorage.removeItem(EXPORTED_DAYS_KEY);
+            localStorage.removeItem(DAY_CURSOR_KEY);
+            localStorage.removeItem(LAST_SEEN_CLOCK_KEY);
+            localStorage.removeItem(CARRYOVER_KEY);
+            clearTurnosStorage();
+            showToast('Histórico completo apagado', 'Todos os dados de produção foram removidos.');
+            render();
+          }}
+        ]
+      });
+    }
+
+    function clearTurnosAndSession() {
+      ensureOperationalDay();
+      if (!canResetSystem()) {
+        showToast('Acesso negado', 'Somente admin pode limpar turnos e sessão');
+        return;
+      }
+      const auth = getAuth();
+      const turnoKeys = getTurnoKeys();
+      const records = getData();
+      const activeDay = getActiveDay();
+      const hasTodayTurnoData = records.some(r => r.data === activeDay && r.turno);
+      openDialog({
+        title: 'LIMPAR TURNOS E SESSÃO?',
+        description: `Serão apagados apenas os <strong>turnos salvos</strong> e a <strong>sessão/login atual</strong>.<br><br>O histórico de produção será mantido.<br><br>Usuário atual: <strong>${escapeHtml(auth.username || 'não identificado')}</strong>.`,
+        actions: [
+          { label: 'Cancelar', variant: 'btn-neutral' },
+          { label: 'SIM, LIMPAR TURNOS E SESSÃO', variant: 'btn-secondary', onClick: () => {
+            clearTurnosStorage();
+            saveData(clearTodayTurnosFromRecords(records, activeDay));
+            saveAuth({ username: '', role: 'operador', loggedIn: false });
+            showToast('Turnos e sessão removidos', `${turnoKeys.length} turno(s) limpo(s). Login encerrado.${hasTodayTurnoData ? ' Histórico preservado.' : ''}`.trim());
+            if (state.route === '/admin') state.route = '/';
+            render();
+          }}
+        ]
+      });
+    }
+
+    function bindEvents() {
+      document.getElementById('menuBtn').onclick = () => { state.menuOpen = !state.menuOpen; render(); };
+
+      const prodSearch = document.getElementById('prodSearch');
+      if (prodSearch) prodSearch.oninput = e => { state.search = e.target.value; render(); };
+      const prodStatus = document.getElementById('prodStatus');
+      if (prodStatus) prodStatus.onchange = e => { state.statusFilter = e.target.value; render(); };
+
+      document.querySelectorAll('[data-massa][data-ing]').forEach(btn => {
+        btn.onclick = () => confirmIngredient(btn.dataset.massa, btn.dataset.ing, btn.dataset.day || getActiveDay());
+      });
+      document.querySelectorAll('[data-turno]').forEach(el => {
+        el.ondblclick = () => {
+          if (!canEditTurno()) {
+            showToast('Acesso negado', 'Somente supervisor ou admin podem alterar turno');
+            return;
+          }
+          defineTurno(el.dataset.turno, el.dataset.day || getActiveDay());
+        };
+      });
+
+      const histSearch = document.getElementById('histSearch');
+      if (histSearch) histSearch.oninput = e => { state.histSearch = e.target.value; render(); };
+      const histIng = document.getElementById('histIng');
+      if (histIng) histIng.onchange = e => { state.histIng = e.target.value; render(); };
+      const histDate = document.getElementById('histDate');
+      if (histDate) histDate.onchange = e => { state.histDate = e.target.value; render(); };
+
+      const adminSearch = document.getElementById('adminSearch');
+      if (adminSearch) adminSearch.oninput = e => { state.adminSearch = e.target.value; render(); };
+      const adminIng = document.getElementById('adminIng');
+      if (adminIng) adminIng.onchange = e => { state.adminIng = e.target.value; render(); };
+      const adminDate = document.getElementById('adminDate');
+      if (adminDate) adminDate.onchange = e => { state.adminDate = e.target.value; render(); };
+
+      const exportBtn = document.getElementById('exportBtn');
+      if (exportBtn) exportBtn.onclick = exportPdf;
+      const resetDayBtn = document.getElementById('resetDayBtn');
+      if (resetDayBtn) resetDayBtn.onclick = resetDay;
+      const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+      if (clearHistoryBtn) clearHistoryBtn.onclick = clearHistoryComplete;
+      const clearTurnosSessaoBtn = document.getElementById('clearTurnosSessaoBtn');
+      if (clearTurnosSessaoBtn) clearTurnosSessaoBtn.onclick = clearTurnosAndSession;
+      const simulateMidnightBtn = document.getElementById('simulateMidnightBtn');
+      if (simulateMidnightBtn) simulateMidnightBtn.onclick = simulateMidnight;
+
+      const menuDots = document.getElementById('menu-dots');
+      const menuDropdown = document.getElementById('menu-dropdown');
+      if (menuDots && menuDropdown) {
+        menuDots.onclick = (e) => {
+          e.stopPropagation();
+          const willOpen = !menuDropdown.classList.contains('open');
+          menuDropdown.classList.toggle('open');
+          menuDropdown.style.display = willOpen ? 'block' : 'none';
+        };
+      }
+
+      const menuHistorico = document.getElementById('menu-historico');
+      if (menuHistorico) menuHistorico.onclick = () => {
+        setRoute('/historico');
+        const dd = document.getElementById('menu-dropdown');
+        if (dd) { dd.classList.remove('open'); dd.style.display = 'none'; }
+      };
+
+      const menuFimLote = document.getElementById('menu-fim-lote');
+      if (menuFimLote) menuFimLote.onclick = () => {
+        confirmFimLote();
+        const dd = document.getElementById('menu-dropdown');
+        if (dd) { dd.classList.remove('open'); dd.style.display = 'none'; }
+      };
+
+      const menuLogin = document.getElementById('menu-login');
+      if (menuLogin) menuLogin.onclick = () => {
+        openLoginModal();
+        const dd = document.getElementById('menu-dropdown');
+        if (dd) { dd.classList.remove('open'); dd.style.display = 'none'; }
+      };
+
+      const menuLogout = document.getElementById('menu-logout');
+      if (menuLogout) menuLogout.onclick = () => {
+        doLogout();
+        const dd = document.getElementById('menu-dropdown');
+        if (dd) { dd.classList.remove('open'); dd.style.display = 'none'; }
+      };
+
+      const loginClose = document.getElementById('login-close');
+      if (loginClose) loginClose.onclick = closeLoginModal;
+      const loginBtn = document.getElementById('login-btn');
+      if (loginBtn) loginBtn.onclick = doMockLogin;
+    }
+
+    document.getElementById('dialogOverlay').addEventListener('click', (e) => {
+      if (e.target.id === 'dialogOverlay') closeDialog();
+    });
+
+    document.addEventListener('click', (e) => {
+      const dd = document.getElementById('menu-dropdown');
+      const dots = document.getElementById('menu-dots');
+      if (dd && dots && !dd.contains(e.target) && !dots.contains(e.target)) {
+        dd.classList.remove('open');
+        dd.style.display = 'none';
+      }
+    });
+
+    const loginOverlayEl = document.getElementById('loginOverlay');
+    if (loginOverlayEl) {
+      loginOverlayEl.addEventListener('click', (e) => {
+        if (e.target.id === 'loginOverlay') closeLoginModal();
+      });
+    }
+
+    window.addEventListener('hashchange', () => {
+      state.route = location.hash.replace('#', '') || '/';
+      render();
+    });
+
+    ensureOperationalDay();
+    if (!getOperationalDay()) setOperationalDay(getTodayStr());
+    setInterval(() => {
+      try { ensureOperationalDay(); } catch {}
+    }, 30000);
+    render();
+  </script>
+
+  
+  <script>
+    let deferredPwaPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferredPwaPrompt = event;
+      const btn = document.getElementById('installPwaBtn');
+      if (btn) btn.classList.remove('hidden');
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredPwaPrompt = null;
+      const btn = document.getElementById('installPwaBtn');
+      if (btn) btn.classList.add('hidden');
+    });
+
+    document.addEventListener('click', async (event) => {
+      const btn = event.target.closest('#installPwaBtn');
+      if (!btn || !deferredPwaPrompt) return;
+      deferredPwaPrompt.prompt();
+      try {
+        await deferredPwaPrompt.userChoice;
+      } catch (err) {
+        console.error('Falha ao abrir prompt de instalação:', err);
+      }
+      deferredPwaPrompt = null;
+      btn.classList.add('hidden');
+    });
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch((err) => {
+          console.error('Erro ao registrar Service Worker:', err);
+        });
+      });
+    }
+  </script>
+
+</body>
+</html>
