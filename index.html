@@ -4,39 +4,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rastreio de Ingredientes por Massa</title>
+  <title>Controle de Ingredientes</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --background: hsl(0 0% 97%);
-      --foreground: hsl(220 15% 15%);
-      --card: hsl(0 0% 100%);
-      --muted: hsl(220 14% 96%);
-      --muted-foreground: hsl(220 9% 46%);
-      --border: hsl(220 13% 91%);
-      --input: hsl(220 13% 91%);
-      --ring: hsl(0 72% 51%);
-      --primary: hsl(0 72% 51%);
-      --radius: 0.75rem;
-      --shadow-sm: 0 1px 2px rgba(16,24,40,.06);
-      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.10), 0 4px 6px -2px rgba(0,0,0,.05);
-    }
+  --background: #0f172a;
+  --foreground: #e5e7eb;
+  --card: #1e293b;
+  --muted: #111827;
+  --muted-foreground: #94a3b8;
+  --border: #334155;
+  --input: #334155;
+  --ring: #2563eb;
+  --primary: #2563eb;
+  --radius: 0.75rem;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+  --shadow-lg: 0 10px 20px rgba(0,0,0,.6);
+}
 
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
     body {
       font-family: 'Inter', sans-serif;
       background: var(--background);
-      color: var(--foreground);
+      color: #ffffff;
       min-height: 100vh;
     }
 
     .app-shell { min-height: 100vh; display: flex; flex-direction: column; }
     .header {
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
+      background: #020617;
+      border-bottom: 1px solid #334155;
       position: sticky;
       top: 0;
       z-index: 50;
@@ -63,21 +63,34 @@
     .brand { display: flex; align-items: center; gap: .75rem; min-width: 0; }
     .brand-icon {
       width: 2.25rem; height: 2.25rem; border-radius: .6rem;
-      background: #ef4444; color: white; display: flex;
+      background: #2563eb; color: white; display: flex;
       align-items: center; justify-content: center; flex-shrink: 0;
     }
     .brand-title { font-size: 1rem; font-weight: 700; line-height: 1.15; }
-    .brand-sub { margin-top: .1rem; font-size: .75rem; color: var(--muted-foreground); text-transform: capitalize; }
+    .brand-sub {
+    margin-top: .1rem;
+    font-size: .95rem;
+    color: #ffffff;
+    text-transform: capitalize;
+}
 
     .desktop-nav { display: none; align-items: center; gap: .25rem; }
     .nav-link {
-      display: inline-flex; align-items: center; gap: .5rem;
-      padding: .5rem 1rem; border-radius: .75rem; font-size: .875rem;
-      font-weight: 500; color: var(--muted-foreground); background: transparent;
-      border: 0; cursor: pointer; text-decoration: none;
-    }
-    .nav-link:hover { background: var(--muted); color: var(--foreground); }
-    .nav-link.active { background: #fef2f2; color: #dc2626; }
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem 1rem;
+    border-radius: .75rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--muted-foreground);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    text-decoration: none;
+}
+    .nav-link:hover { background: var(--muted); color: #ffffff; }
+    .nav-link.active { background: #020617; color: #93c5fd; }
     .nav-user {
       margin-left: .75rem; padding-left: .75rem; border-left: 1px solid var(--border);
       font-size: .75rem; color: var(--muted-foreground);
@@ -97,7 +110,7 @@
       font-weight: 500; color: var(--muted-foreground); border: 0;
       background: transparent; text-align: left; cursor: pointer;
     }
-    .mobile-link.active { background: #fef2f2; color: #dc2626; }
+    .mobile-link.active { background: #172554; color: #93c5fd; }
     .mobile-link:hover { background: var(--muted); }
     .mobile-user {
       padding: .5rem .75rem 0; margin-top: .25rem; border-top: 1px solid var(--border);
@@ -105,33 +118,56 @@
     }
 
     main { flex: 1; }
-    .page { padding: 1rem 0; }
+    .page { padding: 0; }
     .space-y-4 > * + * { margin-top: 1rem; }
     .space-y-1 > * + * { margin-top: .25rem; }
 
     .panel-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: .75rem;
-      padding: 1rem;
-      box-shadow: var(--shadow-sm);
-    }
+    background: #0f172a;
+    border: 1px solid var(--border);
+    border-radius: .75rem;
+    padding: 1rem;
+    padding-top: 0rem;
+    padding-right: 1rem;
+    padding-bottom: 1rem;
+    padding-left: 1rem;
+    box-shadow: var(--shadow-sm);
+}
 
     .summary-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: .75rem;
+      gap: 1rem;
     }
     .summary-item {
-      display: flex; align-items: center; gap: .75rem; padding: .5rem;
-    }
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    padding: 0.5rem;
+    border-radius: 1rem;
+}
     .summary-num {
-      font-size: 1.25rem; font-weight: 700; line-height: 1;
-    }
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1;
+    text-align: center;
+}
+.summary-num.total { color: #e5e7eb; }
+.summary-num.completa { color: #00c853; }
+.summary-num.parcial { color: #ffd600; }
+.summary-num.pendente { color: #ff4d4f; }
+.summary-num.total { color: #e5e7eb; }
+.summary-num.completa { color: #00c853; }
+.summary-num.parcial { color: #ffd600; }
+.summary-num.pendente { color: #ff4d4f; }
     .summary-label {
-      font-size: .75rem; color: var(--muted-foreground); margin-top: .125rem;
-    }
-    .text-foreground { color: var(--foreground); }
+    font-size: 20px;
+    color: #eff3f7;
+    margin-top: 0;
+    text-align: center;
+}
+    .text-foreground { color: #ffffff; }
     .text-green-600 { color: #16a34a; }
     .text-amber-600 { color: #d97706; }
     .text-red-500 { color: #ef4444; }
@@ -149,31 +185,38 @@
     }
     .input, .select, .date-input {
       display: flex; width: 100%; border-radius: .375rem; border: 1px solid var(--input);
-      background: transparent; padding: .25rem .75rem; font-size: 1rem; color: var(--foreground);
+      background: #020617; padding: .25rem .75rem; font-size: 1rem; color: #ffffff;
       box-shadow: var(--shadow-sm); transition: border-color .15s ease, box-shadow .15s ease;
       height: 2.5rem; outline: none;
+    }
+    .select option {
+      background: #0f172a;
+      color: #ffffff;
     }
     .input::placeholder { color: var(--muted-foreground); }
     .icon-pad { padding-left: 2.25rem; }
     .input:focus, .select:focus, .date-input:focus {
-      border-color: #f87171;
-      box-shadow: 0 0 0 1px #f87171;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px #2563eb;
     }
 
     .mass-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: .75rem;
+      gap: 1rem;
     }
     .mass-card {
-      border-radius: .75rem;
-      border: 2px solid #e5e7eb;
-      padding: .75rem;
+      border-radius: 1.1rem;
+      border: 2px solid #334155;
+      padding: 1rem;
+      min-height: 220px;
       transition: all .15s ease;
+      box-shadow: 0 8px 18px rgba(0,0,0,.35);
+      background: #1e293b;
     }
-    .mass-card.completa { border-color: #4ade80; background: rgba(240,253,244,.9); }
-    .mass-card.parcial { border-color: #fbbf24; background: rgba(255,251,235,.85); }
-    .mass-card.pendente { border-color: #f87171; background: rgba(254,242,242,.85); }
+    .mass-card.completa { border-color: #00c853; background: #1e293b; }
+    .mass-card.parcial { border-color: #ffd600; background: #1e293b; }
+    .mass-card.pendente { border-color: #d50000; background: #1e293b; }
     .mass-card.turno { }
     .mass-card.turno-a { border-color: #60a5fa; }
     .mass-card.turno-b { border-color: #a78bfa; }
@@ -181,17 +224,18 @@
     .mass-card.locked { border-color: #e5e7eb; opacity: .6; }
 
     .mass-top {
-      display: flex; align-items: center; justify-content: space-between; margin-bottom: .625rem;
+      display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: .9rem;
+      gap: .75rem;
     }
     .mass-title {
-      font-size: 1rem; font-weight: 700; color: var(--foreground);
-      cursor: pointer; user-select: none;
+      font-size: 2rem; font-weight: 800; color: #ffffff;
+      cursor: pointer; user-select: none; letter-spacing: -.02em;
     }
     .badges {
       display: flex; flex-direction: column; align-items: flex-end; gap: .125rem;
     }
     .badge {
-      font-size: 10px; font-weight: 600; padding: .125rem .5rem; border-radius: 999px;
+      font-size: 1rem; font-weight: 700; padding: .125rem .5rem; border-radius: 999px;
       line-height: 1.2;
     }
     .badge.completa { background: transparent; color: #16a34a; padding: 0; }
@@ -207,14 +251,15 @@
     .badge.turno.turno-c { background: #fff7ed; color: #c2410c; border-color: #fb923c; }
 
     .button-stack {
-      display: flex; flex-direction: column; gap: .375rem;
+      display: flex; flex-direction: column; gap: .7rem;
     }
     .ingredient-btn {
       width: 100%;
-      padding: .625rem .75rem;
-      border-radius: .5rem;
-      font-size: .75rem;
-      font-weight: 600;
+      min-height: 56px;
+      padding: .9rem 1rem;
+      border-radius: .95rem;
+      font-size: 1.05rem;
+      font-weight: 800;
       transition: all .15s ease;
       border: 0;
       box-shadow: var(--shadow-sm);
@@ -222,26 +267,31 @@
       text-align: center;
     }
     .ingredient-btn:active { transform: scale(.97); }
-    .ingredient-btn.pending { background: #ef4444; color: white; }
-    .ingredient-btn.pending:hover { background: #dc2626; }
+    .ingredient-btn.pending {
+      background: #020617;
+      color: #e5e7eb;
+      border: 1px solid #334155;
+    }
+    .ingredient-btn.pending:hover { background: #0b1220; }
     .ingredient-btn.confirmed {
-      background: #e5e7eb;
-      color: #6b7280;
-      border: 2px solid #e5e7eb;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+      background: rgba(0,200,83,0.15);
+      color: #d1fae5;
+      border: 1px solid #00c853;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.18);
     }
     .ingredient-btn:disabled { cursor: not-allowed; }
     .ingredient-btn.blocked {
-      background: #fca5a5;
-      color: #ffffff;
-      opacity: .55;
+      background: rgba(213, 0, 0, 0.22);
+      color: #fecaca;
+      opacity: .65;
       cursor: not-allowed;
       box-shadow: none;
+      border: 1px solid rgba(213, 0, 0, 0.45);
     }
-    .ingredient-btn.blocked:hover { background: #fca5a5; }
+    .ingredient-btn.blocked:hover { background: rgba(213, 0, 0, 0.22); }
 
     .page-title {
-      margin: 0; font-size: 1.25rem; font-weight: 700;
+      margin: 0; font-size: 1.55rem; font-weight: 800;
     }
     .toolbar {
       display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: wrap;
@@ -252,10 +302,10 @@
       display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
       white-space: nowrap; border-radius: .375rem; font-size: .875rem; font-weight: 500;
       transition: all .15s ease; height: 2.25rem; padding: .5rem 1rem;
-      border: 1px solid var(--input); background: white; color: var(--foreground);
+      border: 1px solid var(--input); background: #0f172a; color: #ffffff;
       cursor: pointer; box-shadow: var(--shadow-sm);
     }
-    .btn:hover { background: var(--muted); }
+    .btn:hover { background: #111827; }
     .btn-primary { background: var(--primary); color: white; border-color: transparent; }
     .btn-primary:hover { background: #dc2626; }
     .btn-destructive { background: #ef4444; color: white; border-color: transparent; }
@@ -295,19 +345,23 @@
       font-size: .75rem; font-weight: 400; color: var(--muted-foreground);
     }
     .history-row {
-      display: flex; align-items: center; gap: .75rem; padding: .5rem .75rem;
-      border-radius: .75rem; font-size: .875rem; transition: background .15s ease;
-    }
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    padding: .5rem .75rem;
+    border-radius: .75rem;
+    transition
+}
     .history-row:hover { background: rgba(243,244,246,.75); }
-    .history-date { width: 5rem; flex-shrink: 0; color: var(--muted-foreground); font-size: .75rem; }
+    .history-date { width: 5rem; flex-shrink: 0; color:#f30909; font-size: .75rem; }
     .history-mass { width: 2.5rem; flex-shrink: 0; font-weight: 700; }
     .pill {
       display: inline-flex; align-items: center; padding: .125rem .5rem;
       border-radius: 999px; font-size: .75rem; font-weight: 500; flex-shrink: 0;
     }
-    .pill-purple { background: #f3e8ff; color: #7e22ce; }
-    .pill-blue { background: #dbeafe; color: #1d4ed8; }
-    .pill-orange { background: #ffedd5; color: #c2410c; }
+    .pill-purple { background: #1e293b; color:#eff3f6; }
+    .pill-blue { background: #1e293b; color: #4eb3ff; }
+    .pill-orange { background: #1e293b; color: #fb923c; }
     .history-time, .history-user { color: var(--muted-foreground); font-size: .75rem; }
     .history-user {
       margin-left: auto; max-width: 10rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -336,7 +390,7 @@
       flex-direction: column-reverse; padding: 1rem; pointer-events: none;
     }
     .toast {
-      margin-left: auto; width: min(100%, 26rem); background: white; border: 1px solid var(--border);
+      margin-left: auto; width: min(100%, 26rem); background: #0f172a; border: 1px solid var(--border);
       border-radius: .75rem; box-shadow: var(--shadow-lg); padding: .9rem 1rem; margin-top: .5rem;
       pointer-events: auto;
     }
@@ -347,7 +401,7 @@
       .summary-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
       .filters { flex-direction: row; }
       .mass-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
-      .admin-stats { grid-template-columns: repeat(4, minmax(0,1fr)); }
+      .admin-stats { grid-template-columns: repeat(5, minmax(0,1fr)); }
       .dialog-actions { flex-direction: row; justify-content: flex-end; }
     }
     @media (min-width: 768px) {
@@ -359,7 +413,8 @@
       .mass-grid { grid-template-columns: repeat(5, minmax(0,1fr)); }
     }
     @media (min-width: 1280px) {
-      .mass-grid { grid-template-columns: repeat(6, minmax(0,1fr)); }
+      .mass-grid { grid-template-columns: repeat(5, minmax(0,1fr)); }
+      .container-7xl, .header-inner { max-width: 96rem; }
     }
   
     .top-actions { display:flex; align-items:center; gap:.5rem; position:relative; }
@@ -455,7 +510,7 @@
   <div id="loginOverlay" class="login-overlay">
     <div class="login-card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div style="font-size:18px;color:var(--primary);font-weight:700">Login (Mock)</div>
+        <div style="font-size:18px;color:var(--primary);font-weight:700">Login</div>
         <div id="login-close" style="cursor:pointer;color:var(--muted-foreground)">✕</div>
       </div>
 
@@ -473,14 +528,30 @@
         <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
           <button id="login-btn" class="primary">Entrar</button>
         </div>
-        <div style="margin-top:8px;color:var(--muted-foreground);font-size:13px">Operador = 123 • Supervisor = 999 • Admin = 111. Este login é mock; no ambiente real conectaremos a API.</div>
+        
       </div>
     </div>
   </div>
 
 
 
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js">
+function getTurnoByHorario(hora) {
+  const [h, m] = hora.split(':').map(Number);
+  const minutos = h * 60 + m;
+
+  const turnoAInicio = 5 * 60 + 10;
+  const turnoAFim = 13 * 60;
+
+  const turnoBInicio = 13 * 60;
+  const turnoBFim = 20 * 60 + 40;
+
+  if (minutos >= turnoAInicio && minutos < turnoAFim) return 'Turno A';
+  if (minutos >= turnoBInicio && minutos < turnoBFim) return 'Turno B';
+  return 'Turno C';
+}
+
+</script>
   <script>
     const STORAGE_KEY = 'controle_massa_records_v3';
     const LOT_KEY = 'lote_resets_v3';
@@ -519,6 +590,12 @@
       return auth.loggedIn && auth.role ? auth.role : 'operador';
     }
 
+    function getAuthDisplay() {
+      const auth = getAuth();
+      if (!auth.loggedIn || !auth.username) return 'Não logado';
+      return `${auth.username} (${auth.role})`;
+    }
+
     function isAdmin() {
       return getCurrentRole() === 'admin';
     }
@@ -536,7 +613,7 @@
     }
 
     function canEditTurno() {
-      return isAdmin() || isSupervisor();
+      return isAdmin() || isSupervisor() || getCurrentRole() === 'operador';
     }
 
     function canEndBatch() {
@@ -581,7 +658,7 @@
       showToast('Sessão encerrada', 'Faça login para identificar o operador');
       render();
     }
-    const ingredientes = ['Melhorador', 'Sal', 'Fermento'];
+    const ingredientes = ['Melhorador', 'Sal', 'Fermento', 'Amostra'];
 
     const state = {
       route: location.hash.replace('#', '') || '/',
@@ -643,7 +720,7 @@
     function getMassStatus(registros) {
       const confirmed = ingredientes.filter(ing => registros.some(r => r.ingrediente === ing)).length;
       if (confirmed === 0) return 'pendente';
-      if (confirmed === 3) return 'completa';
+      if (confirmed === ingredientes.length) return 'completa';
       return 'parcial';
     }
     function getData() {
@@ -855,6 +932,7 @@
         return false;
       }
 
+      const grupos = buildCompactHistoryGroups(registros);
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const pageWidth = doc.internal.pageSize.getWidth();
@@ -887,55 +965,51 @@
         }
 
         if (firstPage) {
-          const dias = [...new Set(registros.map(r => r.data))];
-          const massas = [...new Set(registros.map(r => r.numero_massa))];
           y += 1;
           doc.setFont('helvetica', 'bold');
-          doc.text(`Registros: ${registros.length}`, margin, y);
-          doc.text(`Massas: ${massas.length}`, margin + 55, y);
-          doc.text(`Dias: ${dias.length}`, margin + 100, y);
+          doc.text(`Massas: ${grupos.reduce((acc, g) => acc + g.linhas.length, 0)}`, margin, y);
+          doc.text(`Registros: ${registros.length}`, margin + 55, y);
           y += 6;
         } else {
           y += 3;
         }
 
-        doc.setDrawColor(220, 38, 38);
-        doc.line(margin, y, pageWidth - margin, y);
-        y += 6;
-
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(9);
-        doc.text('Data  Hora  Massa  Ingrediente  Usuário  Turno', margin, y);
-        y += 5;
         doc.setDrawColor(220, 220, 220);
         doc.line(margin, y, pageWidth - margin, y);
-        y += 4;
+        y += 6;
       }
 
       writeHeader(true);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(9);
 
-      registros.forEach((r, idx) => {
-        const line = `${formatDateBr(r.data)}   ${r.hora}   ${r.numero_massa}   ${r.ingrediente}   ${r.usuario || '-'}   ${r.turno || '-'}`;
-        const lines = doc.splitTextToSize(line, usableWidth);
-
-        if (y + (lines.length * 4.5) + 8 > pageHeight - margin) {
+      grupos.forEach(grupo => {
+        if (y > pageHeight - 20) {
           doc.addPage();
           y = 14;
           writeHeader(false);
+        }
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.text(formatDateBr(grupo.data), margin, y);
+        y += 6;
+
+        grupo.linhas.forEach(item => {
+          const linha = `${formatDateBr(grupo.data)}    ${item.massa}    ${item.resumo}    ${item.turno || '--'}`;
+          const lines = doc.splitTextToSize(linha, usableWidth);
+
+          if (y + (lines.length * 4.5) + 6 > pageHeight - margin) {
+            doc.addPage();
+            y = 14;
+            writeHeader(false);
+          }
+
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(9);
-        }
+          doc.text(lines, margin, y);
+          y += lines.length * 4.5 + 2;
+        });
 
-        doc.text(lines, margin, y);
-        y += lines.length * 4.5 + 1.5;
-
-        if (idx < registros.length - 1) {
-          doc.setDrawColor(242, 242, 242);
-          doc.line(margin, y, pageWidth - margin, y);
-          y += 3;
-        }
+        y += 2;
       });
 
       const totalPages = doc.getNumberOfPages();
@@ -1046,12 +1120,15 @@
         ['M01','Melhorador','17:14','Bem'],
         ['M01','Sal','17:14','Bem'],
         ['M01','Fermento','17:18','Bem'],
+        ['M01','Amostra','17:20','Bem'],
         ['M02','Melhorador','17:19','Bem'],
         ['M02','Sal','17:19','Bem'],
         ['M02','Fermento','17:21','Bem'],
+        ['M02','Amostra','17:23','Bem'],
         ['M03','Melhorador','18:35','Bem'],
         ['M03','Sal','18:38','Bem'],
         ['M03','Fermento','18:41','Bem'],
+        ['M03','Amostra','18:43','Bem'],
       ];
       for (const [massa, ing, hora, usuario] of todayItems) rows.push({ id: id++, data: today, hora, numero_massa: massa, ingrediente: ing, usuario, timestamp: `${today}T${hora}:00`, turno: massa === 'M05' ? 'Turno A' : '' });
       for (const [massa, ing, hora, usuario] of yItems) rows.push({ id: id++, data: y, hora, numero_massa: massa, ingrediente: ing, usuario, timestamp: `${y}T${hora}:00` });
@@ -1068,8 +1145,6 @@
     }
 
     function getTurnoForMass(mass, recs) {
-      const explicit = recs.find(r => r.turno)?.turno;
-      if (explicit) return explicit;
       try {
         return localStorage.getItem(`${TURNO_KEY_PREFIX}${mass}`) || '';
       } catch {
@@ -1106,7 +1181,10 @@
         const btn = document.createElement('button');
         btn.className = `btn ${a.variant || ''}`.trim();
         btn.textContent = a.label;
-        btn.onclick = () => { if (a.onClick) a.onClick(); closeDialog(); };
+        btn.onclick = () => {
+          closeDialog();
+          if (a.onClick) setTimeout(() => a.onClick(), 0);
+        };
         actionsEl.appendChild(btn);
       });
       document.getElementById('dialogOverlay').classList.add('open');
@@ -1139,6 +1217,7 @@
           ${item.path === '/' ? '📋' : '🛡️'} ${item.label}
         </button>
       `).join('') + `
+        <div class="nav-user">${getAuthDisplay()}</div>
         <div class="top-actions">
           <div id="menu-dots" class="small-ghost" style="padding:8px 12px;cursor:pointer;user-select:none;">⋮</div>
           <div id="menu-dropdown" class="menu-dropdown" style="display:none;">
@@ -1157,6 +1236,7 @@
           ${item.path === '/' ? '📋' : '🛡️'} ${item.label}
         </button>
       `).join('') + `
+        <div class="mobile-user">${getAuthDisplay()}</div>
         <button class="mobile-link" id="menuHistoricoMobile">🕘 Histórico</button>
         ${canEndBatch() ? '<button class="mobile-link" id="fimLoteMobile">⛔ Fim de Lote</button>' : ''}
         <button class="mobile-link" id="loginMobile">🔐 Login</button>
@@ -1189,10 +1269,10 @@
       return `
         <div class="panel-card">
           <div class="summary-grid">
-            <div class="summary-item"><div>📊</div><div><div class="summary-num">${allEntries.length}</div><div class="summary-label">Massas exibidas</div></div></div>
-            <div class="summary-item"><div class="text-green-600">✅</div><div><div class="summary-num">${completas}</div><div class="summary-label">Completas</div></div></div>
-            <div class="summary-item"><div class="text-amber-600">🕒</div><div><div class="summary-num">${parciais}</div><div class="summary-label">Parciais</div></div></div>
-            <div class="summary-item"><div class="text-red-500">⚠️</div><div><div class="summary-num">${pendentes}</div><div class="summary-label">Pendentes</div></div></div>
+            <div class="summary-item"><div class="summary-label">Massas exibidas</div><div class="summary-num total">${allEntries.length}</div></div>
+            <div class="summary-item"><div class="summary-label">Completas</div><div class="summary-num completa">${completas}</div></div>
+            <div class="summary-item"><div class="summary-label">Parciais</div><div class="summary-num parcial">${parciais}</div></div>
+            <div class="summary-item"><div class="summary-label">Pendentes</div><div class="summary-num pendente">${pendentes}</div></div>
           </div>
         </div>
       `;
@@ -1235,10 +1315,15 @@
                 const found = recs.find(r => r.ingrediente === ing);
                 const temMelhorador = recs.some(r => r.ingrediente === 'Melhorador');
                 const temSal = recs.some(r => r.ingrediente === 'Sal');
+                const temFermento = recs.some(r => r.ingrediente === 'Fermento');
                 const fermentoBloqueado = ing === 'Fermento' && (!temMelhorador || !temSal);
-                const disabled = fermentoBloqueado;
-                const btnClass = fermentoBloqueado ? 'blocked' : 'pending';
-                const hint = isCarryover ? 'Massa parcial trazida do dia anterior' : (fermentoBloqueado ? 'Adicione Melhorador e Sal primeiro' : '');
+                const amostraBloqueada = ing === 'Amostra' && !temFermento;
+                const bloqueado = fermentoBloqueado || amostraBloqueada;
+                const disabled = bloqueado;
+                const btnClass = bloqueado ? 'blocked' : 'pending';
+                const hint = isCarryover
+                  ? 'Massa parcial trazida do dia anterior'
+                  : (fermentoBloqueado ? 'Adicione Melhorador e Sal primeiro' : (amostraBloqueada ? 'Adicione Fermento primeiro' : ''));
                 return found
                   ? `<button class="ingredient-btn confirmed">✓ ${ing} · ${found.hora}</button>`
                   : `<button class="ingredient-btn ${btnClass}" ${disabled ? 'disabled' : ''} data-massa="${massKey}" data-day="${dataDay}" data-ing="${ing}" title="${hint}">${ing}</button>`;
@@ -1285,7 +1370,7 @@
             ` : ''}
 
             <div class="panel-card">
-              <div class="meta-line" style="margin-bottom:10px"><strong>Novo dia</strong> • a próxima massa ainda não iniciada recomeça em <strong>Massa 01</strong>.</div>
+              
               <div class="mass-grid">
                 ${masses.map(m => renderMassCard({
                   displayMass: m,
@@ -1302,6 +1387,62 @@
       `;
     }
 
+    
+    function buildCompactHistoryGroups(registros) {
+      const byDate = {};
+      registros
+        .filter(r => r.ingrediente !== '_turno')
+        .forEach(r => {
+          if (!byDate[r.data]) byDate[r.data] = {};
+          if (!byDate[r.data][r.numero_massa]) byDate[r.data][r.numero_massa] = [];
+          byDate[r.data][r.numero_massa].push(r);
+        });
+
+      return Object.entries(byDate)
+        .sort((a,b) => b[0].localeCompare(a[0]))
+        .map(([data, massas]) => {
+          const linhas = Object.entries(massas)
+            .sort((a,b) => a[0].localeCompare(b[0]))
+            .map(([massa, itens]) => {
+              const ordenados = [...itens].sort((a,b) => a.hora.localeCompare(b.hora));
+              const resumo = ordenados.map(r => `${r.ingrediente} ${r.hora}`).join(' - ');
+              const turno = ordenados[0]?.turno || '';
+              return { massa, resumo, turno, total: ordenados.length };
+            });
+          const total = linhas.reduce((acc, item) => acc + item.total, 0);
+          return { data, linhas, total };
+        });
+    }
+
+    function getIngredientPillClass(ingrediente) {
+      if (ingrediente === 'Melhorador') return 'pill-purple';
+      if (ingrediente === 'Sal') return 'pill-blue';
+      if (ingrediente === 'Fermento') return 'pill-orange';
+      if (ingrediente === 'Amostra') return 'pill-blue';
+      return 'pill-purple';
+    }
+
+    function renderCompactHistoryGroups(registros) {
+      const grupos = buildCompactHistoryGroups(registros);
+      if (!grupos.length) return `<div class="empty">Nenhum registro encontrado.</div>`;
+      return grupos.map(({ data, linhas, total }) => `
+        <div class="panel-card">
+          <h3 class="history-group-title">📅 ${formatDateBr(data)} <span>(${total} registros)</span></h3>
+          <div class="space-y-1">
+            ${linhas.map(item => `
+              <div class="history-row">
+                <span class="history-date">${formatDateBr(data)}</span>
+                <span class="history-mass">${item.massa}</span>
+                <span style="flex:1;color:#ffffff">${item.resumo}</span>
+                <span class="pill pill-blue">${item.turno || '--'}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+
     function renderHistoryRows(registros) {
       if (!registros.length) return `<div class="empty">Nenhum registro encontrado.</div>`;
       const sorted = [...registros].sort((a,b) => b.data !== a.data ? b.data.localeCompare(a.data) : b.hora.localeCompare(a.hora));
@@ -1311,7 +1452,7 @@
             <div class="history-row">
               <span class="history-date">${formatDateBr(r.data)}</span>
               <span class="history-mass">${r.numero_massa}</span>
-              <span class="pill ${r.ingrediente === 'Melhorador' ? 'pill-purple' : r.ingrediente === 'Sal' ? 'pill-blue' : 'pill-orange'}">${r.ingrediente}</span>
+              <span class="pill ${getIngredientPillClass(r.ingrediente)}">${r.ingrediente}</span>
               <span class="history-time">${r.hora}</span>
               <span class="history-user">${escapeHtml(r.usuario)}</span>
             </div>
@@ -1351,6 +1492,7 @@
                 <option value="Melhorador" ${state.histIng==='Melhorador'?'selected':''}>Melhorador</option>
                 <option value="Sal" ${state.histIng==='Sal'?'selected':''}>Sal</option>
                 <option value="Fermento" ${state.histIng==='Fermento'?'selected':''}>Fermento</option>
+                <option value="Amostra" ${state.histIng==='Amostra'?'selected':''}>Amostra</option>
               </select>
               <div class="field-wrap" style="max-width:170px">
                 <span class="field-icon">📅</span>
@@ -1358,12 +1500,7 @@
               </div>
             </div>
             <div class="meta-line">${filtered.length} registro(s) encontrado(s)</div>
-            ${grouped.length ? grouped.map(([data,recs]) => `
-              <div class="panel-card">
-                <h3 class="history-group-title">📅 ${formatDateBr(data)} <span>(${recs.length} registros)</span></h3>
-                ${renderHistoryRows(recs)}
-              </div>
-            `).join('') : `<div class="empty">Nenhum registro encontrado.</div>`}
+            ${renderCompactHistoryGroups(filtered)}
           </div>
         </div>
       `;
@@ -1386,6 +1523,7 @@
         melhorador: todayRecs.filter(r => r.ingrediente === 'Melhorador').length,
         sal: todayRecs.filter(r => r.ingrediente === 'Sal').length,
         fermento: todayRecs.filter(r => r.ingrediente === 'Fermento').length,
+        amostra: todayRecs.filter(r => r.ingrediente === 'Amostra').length,
       };
 
       return `
@@ -1407,6 +1545,7 @@
               <div class="admin-stat"><div class="admin-value text-purple-600">${stats.melhorador}</div><div class="admin-label">Melhorador</div></div>
               <div class="admin-stat"><div class="admin-value text-blue-600">${stats.sal}</div><div class="admin-label">Sal</div></div>
               <div class="admin-stat"><div class="admin-value text-orange-600">${stats.fermento}</div><div class="admin-label">Fermento</div></div>
+              <div class="admin-stat"><div class="admin-value text-green-600">${stats.amostra}</div><div class="admin-label">Amostra</div></div>
             </div>
 
             <div class="meta-line">Dia operacional ativo: <strong>${formatDateBr(activeDay)}</strong> • Use <strong>Simular 00:00</strong> para testar a virada sem mudar o relógio do PC.</div>
@@ -1421,6 +1560,7 @@
                 <option value="Melhorador" ${state.adminIng==='Melhorador'?'selected':''}>Melhorador</option>
                 <option value="Sal" ${state.adminIng==='Sal'?'selected':''}>Sal</option>
                 <option value="Fermento" ${state.adminIng==='Fermento'?'selected':''}>Fermento</option>
+                <option value="Amostra" ${state.adminIng==='Amostra'?'selected':''}>Amostra</option>
               </select>
               <div class="field-wrap" style="max-width:170px">
                 <span class="field-icon">📅</span>
@@ -1456,9 +1596,15 @@
       const recs = records.filter(r => r.data === activeDay && r.numero_massa === massa);
       const temMelhorador = recs.some(r => r.ingrediente === 'Melhorador');
       const temSal = recs.some(r => r.ingrediente === 'Sal');
+      const temFermento = recs.some(r => r.ingrediente === 'Fermento');
 
       if (ingrediente === 'Fermento' && (!temMelhorador || !temSal)) {
         showToast('Ordem inválida', 'Adicione Melhorador e Sal antes do Fermento');
+        return;
+      }
+
+      if (ingrediente === 'Amostra' && !temFermento) {
+        showToast('Ordem inválida', 'Adicione Fermento antes da Amostra');
         return;
       }
 
@@ -1479,12 +1625,12 @@
           { label: 'Cancelar' },
           { label: 'Confirmar', variant: 'btn-primary', onClick: () => {
             const now = new Date();
-            const current = records.filter(r => r.data === activeDay && r.numero_massa === massa);
-            const turno = current.find(r => r.turno)?.turno || '';
+            const horaRegistro = getCurrentTime(now);
+            const turno = getTurnoByHorario(horaRegistro);
             records.push({
               id: Date.now(),
               data: activeDay,
-              hora: getCurrentTime(now),
+              hora: horaRegistro,
               numero_massa: massa,
               ingrediente,
               usuario: getCurrentUser(),
@@ -1497,6 +1643,53 @@
           }}
         ]
       });
+    }
+
+    function hasIngredientRecordsForMass(day, massa) {
+      return getData().some(r =>
+        r.data === day &&
+        r.numero_massa === massa &&
+        r.ingrediente !== '_turno'
+      );
+    }
+
+    function confirmRestartCountingFromMass(massa, targetDay = getActiveDay()) {
+      ensureOperationalDay();
+      const activeDay = targetDay;
+      const hasRecords = hasIngredientRecordsForMass(activeDay, massa);
+
+      if (hasRecords) {
+        showToast('Reinício bloqueado', 'Só é possível reiniciar a contagem usando uma massa sem nenhum ingrediente marcado.');
+        return;
+      }
+
+      openDialog({
+        title: 'Reiniciar Contagem',
+        description: `Deseja reiniciar a contagem a partir da <strong>Massa 01</strong>? A <strong>${massa.replace('M','Massa ')}</strong> ainda está sem registros e será substituída pela nova Massa 01. As massas parciais continuarão visíveis para finalização e o histórico será mantido.`,
+        actions: [
+          { label: 'Cancelar', variant: 'btn-neutral' },
+          { label: 'Confirmar Reinício', variant: 'btn-warning', onClick: () => restartCounting(activeDay) }
+        ]
+      });
+    }
+
+    function restartCounting(day = getActiveDay()) {
+      const carryovers = buildCarryoverItemsForDay(day);
+      saveCarryoverItems(carryovers);
+      clearTurnosStorage();
+
+      const nextDay = getNextEmptyOperationalDay(day);
+      setOperationalDay(nextDay);
+
+      const now = new Date();
+      saveLastSeenClock({ day: nextDay, minutes: now.getHours() * 60 + now.getMinutes() });
+
+      const carryMsg = carryovers.length
+        ? ` ${carryovers.length} massa(s) parcial(is) continuam disponíveis para finalização.`
+        : '';
+
+      showToast('Contagem reiniciada', `A produção voltou para Massa 01.${carryMsg}`);
+      render();
     }
 
     function defineTurno(massa, targetDay = getActiveDay()) {
@@ -1515,6 +1708,10 @@
         { label: 'Turno C', variant: 'btn-turno-c', onClick: () => setMassTurno(massa, 'Turno C', activeDay) }
       ];
 
+      if (!hasIngredientRecordsForMass(activeDay, massa)) {
+        actions.push({ label: 'Reiniciar Contagem', variant: 'btn-warning', onClick: () => confirmRestartCountingFromMass(massa, activeDay) });
+      }
+
       if (turnoAtual) {
         actions.push({ label: 'Desmarcar', variant: 'btn-neutral', onClick: () => clearMassTurno(massa, activeDay) });
       }
@@ -1522,62 +1719,26 @@
       openDialog({
         title: 'Definir turno',
         description: turnoAtual
-          ? `Escolha o turno para a <strong>${massa.replace('M','Massa ')}</strong> ou desmarque o turno atual <strong>${turnoAtual}</strong>.`
-          : `Escolha o turno para a <strong>${massa.replace('M','Massa ')}</strong>.`,
+          ? `Escolha o turno para a <strong>${massa.replace('M','Massa ')}</strong> ou desmarque o turno atual <strong>${turnoAtual}</strong>. Se a massa estiver sem registros, você também pode reiniciar a contagem.`
+          : `Escolha o turno para a <strong>${massa.replace('M','Massa ')}</strong>. Se a massa estiver sem registros, você também pode reiniciar a contagem.`,
         actions
       });
     }
 
     function setMassTurno(massa, turno, targetDay = getActiveDay()) {
       ensureOperationalDay();
-      const records = getData();
-      const activeDay = targetDay;
       try {
         localStorage.setItem(`${TURNO_KEY_PREFIX}${massa}`, turno);
       } catch {}
-      let changed = false;
-      records.forEach(r => {
-        if (r.data === activeDay && r.numero_massa === massa) {
-          r.turno = turno;
-          changed = true;
-        }
-      });
-      if (!changed) {
-        records.push({
-          id: Date.now(),
-          data: activeDay,
-          hora: getCurrentTime(new Date()),
-          numero_massa: massa,
-          ingrediente: '_turno',
-          usuario: getCurrentUser(),
-          timestamp: new Date().toISOString(),
-          turno
-        });
-      }
-      saveData(records.filter(r => r.ingrediente !== '_turno' || r.turno));
       showToast('Turno definido', `${massa} • ${turno}`);
       render();
     }
 
     function clearMassTurno(massa, targetDay = getActiveDay()) {
       ensureOperationalDay();
-      const records = getData();
-      const activeDay = targetDay;
-
       try {
         localStorage.removeItem(`${TURNO_KEY_PREFIX}${massa}`);
       } catch {}
-
-      const updated = records
-        .map(r => {
-          if (r.data === activeDay && r.numero_massa === massa) {
-            return { ...r, turno: '' };
-          }
-          return r;
-        })
-        .filter(r => !(r.data === activeDay && r.numero_massa === massa && r.ingrediente === '_turno'));
-
-      saveData(updated);
       showToast('Turno removido', `${massa.replace('M','Massa ')} sem turno definido`);
       render();
     }
@@ -1856,7 +2017,23 @@
       try { ensureOperationalDay(); } catch {}
     }, 30000);
     render();
-  </script>
+  
+function getTurnoByHorario(hora) {
+  const [h, m] = hora.split(':').map(Number);
+  const minutos = h * 60 + m;
+
+  const turnoAInicio = 5 * 60 + 10;
+  const turnoAFim = 13 * 60;
+
+  const turnoBInicio = 13 * 60;
+  const turnoBFim = 20 * 60 + 40;
+
+  if (minutos >= turnoAInicio && minutos < turnoAFim) return 'Turno A';
+  if (minutos >= turnoBInicio && minutos < turnoBFim) return 'Turno B';
+  return 'Turno C';
+}
+
+</script>
 
   
   <script>
@@ -1895,7 +2072,23 @@
         });
       });
     }
-  </script>
+  
+function getTurnoByHorario(hora) {
+  const [h, m] = hora.split(':').map(Number);
+  const minutos = h * 60 + m;
+
+  const turnoAInicio = 5 * 60 + 10;
+  const turnoAFim = 13 * 60;
+
+  const turnoBInicio = 13 * 60;
+  const turnoBFim = 20 * 60 + 40;
+
+  if (minutos >= turnoAInicio && minutos < turnoAFim) return 'Turno A';
+  if (minutos >= turnoBInicio && minutos < turnoBFim) return 'Turno B';
+  return 'Turno C';
+}
+
+</script>
 
 </body>
 </html>
