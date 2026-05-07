@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -154,13 +153,25 @@
     text-align: center;
 }
 .summary-num.total { color: #e5e7eb; }
-.summary-num.completa { color: #00c853; }
-.summary-num.parcial { color: #ffd600; }
-.summary-num.pendente { color: #ff4d4f; }
+.summary-num.completa {
+    color: #fdffff;
+}
+.summary-num.parcial {
+    color: #f4f4ef;
+}
+.summary-num.pendente {
+    color: #f4eff0;
+}
 .summary-num.total { color: #e5e7eb; }
-.summary-num.completa { color: #00c853; }
-.summary-num.parcial { color: #ffd600; }
-.summary-num.pendente { color: #ff4d4f; }
+.summary-num.completa {
+    color: #fdffff;
+}
+.summary-num.parcial {
+    color: #f4f4ef;
+}
+.summary-num.pendente {
+    color: #f4eff0;
+}
     .summary-label {
     font-size: 20px;
     color: #eff3f7;
@@ -377,13 +388,28 @@
     .overlay.open { display: flex; }
     .dialog {
       position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
-      z-index: 50; display: grid; width: 100%; max-width: 32rem; gap: 1rem;
+      z-index: 50; display: grid; width: calc(100% - 2rem); max-width: 32rem; gap: 1rem;
       border: 1px solid var(--border); background: var(--background); padding: 1.5rem;
       box-shadow: var(--shadow-lg); border-radius: .5rem;
+      overflow: hidden;
     }
     .dialog-title { font-size: 1.125rem; font-weight: 600; margin: 0; }
     .dialog-desc { font-size: .875rem; color: var(--muted-foreground); line-height: 1.5; }
-    .dialog-actions { display: flex; flex-direction: column-reverse; gap: .5rem; }
+    .dialog-actions {
+      display: flex;
+      flex-direction: column-reverse;
+      gap: .5rem;
+      width: 100%;
+      max-width: 100%;
+    }
+    .dialog-actions .btn {
+      width: 100%;
+      max-width: 100%;
+      white-space: normal;
+      height: auto;
+      min-height: 2.25rem;
+      text-align: center;
+    }
 
     .toast-wrap {
       position: fixed; top: 0; z-index: 100; display: flex; width: 100%;
@@ -402,7 +428,15 @@
       .filters { flex-direction: row; }
       .mass-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
       .admin-stats { grid-template-columns: repeat(5, minmax(0,1fr)); }
-      .dialog-actions { flex-direction: row; justify-content: flex-end; }
+      .dialog-actions {
+        flex-direction: row;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+      }
+      .dialog-actions .btn {
+        width: auto;
+        max-width: 100%;
+      }
     }
     @media (min-width: 768px) {
       .desktop-nav { display: flex; }
